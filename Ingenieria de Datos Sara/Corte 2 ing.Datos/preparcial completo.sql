@@ -655,3 +655,82 @@ SELECT * FROM vw_tablero_entregas WHERE codigo = 'ENT-0021';
 CALL sp_programar_entrega('ENT-0022', 6, 4, 4, '2026-10-03 11:00:00', 'Guarne', 9.0, 'NORMAL');
 CALL sp_programar_entrega('ENT-0023', 2, 7, 7, '2026-10-04 08:00:00', 'Arcabuco', 28.0, 'NORMAL');
 
+-- enunciados --
+-- R3. Ajustes con ALTER TABLE
+a) Agregue la FK fk_usuarios_referidor que asegura que el referidor sea un usuario existente.
+b) Agregue a viajes la restricción chk_viajes_fechas: la fecha de fin es nula o no es anterior a la
+fecha de inicio (RN-05).
+R4. Operaciones de datos
+a) Registre con un solo INSERT, sin escribir el identificador, a estos dos usuarios:
+
+b) Aplique RN-06 con un solo UPDATE.
+c) Elimine con un solo DELETE los viajes CANCELADOS con 0 km (fueron pruebas del sistema).
+d) Muestre en una sola fila: total de usuarios (usuarios), total de viajes (viajes) y bicicletas en
+TALLER (bicis_en_taller).
+R5. Filtros operativos
+a) Viajes FINALIZADOS de 2 a 6 km (inclusive) que salieron de las estaciones 1 o 2. Use BETWEEN e IN.
+Columnas: id_viaje, id_estacion_origen, km, calificacion. Orden: km de mayor a menor.
+b) Bicicletas que no están en BAJA (use !=) y que tienen menos de 300 km o 1.200 km o más.
+Columnas: codigo, modelo, estado, km_recorridos. Orden: código ascendente.
+c) Viajes sin fecha de fin (IS NULL) cuyo estado no sea CANCELADO (use NOT IN). Columnas:
+id_viaje, id_usuario, estado, fecha_inicio. Orden: fecha de inicio.
+d) Usuarios cuyo plan no es PREMIUM (use NOT) registrados hasta el 31 de marzo de 2026, inclusive
+(<=). Columnas: nombres, apellidos, plan, fecha_registro. Orden: fecha ascendente.
+R6. Patrones y funciones
+a) Usuarios con correo institucional: tienen correo (IS NOT NULL) y no es de un dominio gratuito de
+RN-11 (use NOT LIKE). Columnas: nombre completo con CONCAT (alias usuario) y correo en
+minúsculas (alias correo). Orden: usuario.
+b) Bicicletas eléctricas de serie según RN-07 (use LIKE con _). Columnas: codigo, modelo en
+mayúsculas (alias modelo), km_recorridos y el porcentaje del límite de 1.500 km de RN-06,
+redondeado a 1 decimal (alias pct_revision). Orden: km descendente. 
+c) Usuarios con teléfono inválido: sin teléfono o con longitud distinta de 10 (use <> y LENGTH).
+Columnas: usuario (nombre completo), telefono (si es nulo, 'SIN TELÉFONO' con COALESCE),
+digitos. Orden: usuario.
+R7. Indicadores
+a) Por estación de origen, solo viajes FINALIZADOS: estacion (nombre), viajes (cantidad),
+km_totales, km_promedio (2 decimales), km_minimo, km_maximo. Orden: km totales descendente.
+b) Usuarios con al menos 2 viajes FINALIZADOS y más de 10 km en total. Columnas: usuario,
+viajes, km_totales. Orden: km totales descendente.
+R8. Consultas multitabla
+a) Viajes FINALIZADOS de usuarios PREMIUM (4 tablas, INNER JOIN): id_viaje, usuario,
+bicicleta (código), origen (nombre de la estación), km, minutos (entre inicio y fin, entero). Orden:
+id_viaje.
+b) Todas las estaciones con su ocupación: estacion, capacidad, bicicletas (cantidad, cualquier
+estado; 0 si no tiene) y cupos_libres (capacidad menos bicicletas). Orden: id de la estación.
+c) Cada usuario con el nombre completo de quien lo refirió (alias referido_por); si no tiene, 'SIN
+REFERIDOR'. Orden: id del usuario.
+d) Accesorios alquilados en viajes FINALIZADOS (3 tablas): id_viaje, accesorio, cantidad,
+subtotal (cantidad × precio). Orden: id_viaje y accesorio.
+R9. Subconsultas
+a) Viajes FINALIZADOS con km mayor que el promedio de km de los viajes FINALIZADOS. Columnas:
+id_viaje, km. Orden: km descendente.
+b) Usuarios que nunca han hecho un viaje (use NOT IN). Columnas: nombres, apellidos,
+fecha_registro. Orden: fecha de registro.
+c) Bicicletas con más km que el promedio de las bicicletas de su misma estación (todas, sin importar
+el estado). Use una subconsulta correlacionada. Columnas: codigo, id_estacion, km_recorridos.
+Orden: código.
+d) Accesorios que nunca se han alquilado (use NOT EXISTS). Columnas: nombre, precio.
+R10. Vista e índices
+a) Cree la vista vw_actividad_usuarios con una fila por usuario, incluidos los que no tienen viajes:
+id_usuario, usuario (nombre completo), plan, total_viajes (solo FINALIZADOS) y km_totales
+(0 si no tiene). Pruébela: SELECT usuario, plan, total_viajes, km_totales FROM
+vw_actividad_usuarios ORDER BY km_totales DESC, usuario;
+R11. Función
+Cree fn_costo_viaje(p_km, p_plan) que devuelva el costo de un viaje según RN-08, con 2 decimales.
+Pruébela con SELECT fn_costo_viaje(10, 'BASICO'), fn_costo_viaje(10, 'PREMIUM'); y
+listando los viajes FINALIZADOS de la estación 1 con id_viaje, plan, km y costo, ordenados por costo
+descendente. En MySQL, declárela DETERMINISTIC.
+R12. Trigger
+Pruébelo con exactamente estas sentencias y luego consulte el historial con el código de la bicicleta:
+UPDATE bicicletas SET estado = 'ACTIVA' WHERE codigo = 'CV-M02';
+UPDATE bicicletas SET estado = 'BAJA' WHERE codigo = 'CV-E03';
+UPDATE bicicletas SET km_recorridos = km_recorridos + 5 WHERE codigo = 'CV-E01';
+R13. Procedimiento almacenado
+Cree sp_iniciar_viaje(p_id_usuario, p_id_bici, p_fecha) que aplique RN-09: si la bicicleta no
+está ACTIVA, o si el usuario ya tiene un viaje EN_CURSO, debe detenerse con un error que explique el
+motivo. Si todo es válido, inserta el viaje con la estación actual de la bicicleta como origen (estado y km
+quedan con sus valores por defecto) y muestra el id creado. Pruébelo con exactamente estas llamadas y
+luego consulte los viajes de los usuarios 2, 7 y 8:
+CALL sp_iniciar_viaje(7, 3, '2026-10-16 08:00:00');
+CALL sp_iniciar_viaje(8, 4, '2026-10-16 08:05:00');
+CALL sp_iniciar_viaje(2, 1, '2026-10-16 08:10:00');-- 
