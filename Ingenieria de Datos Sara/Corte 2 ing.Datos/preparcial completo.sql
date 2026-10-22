@@ -656,81 +656,154 @@ CALL sp_programar_entrega('ENT-0022', 6, 4, 4, '2026-10-03 11:00:00', 'Guarne', 
 CALL sp_programar_entrega('ENT-0023', 2, 7, 7, '2026-10-04 08:00:00', 'Arcabuco', 28.0, 'NORMAL');
 
 -- enunciados --
--- R3. Ajustes con ALTER TABLE
-a) Agregue la FK fk_usuarios_referidor que asegura que el referidor sea un usuario existente.
-b) Agregue a viajes la restricción chk_viajes_fechas: la fecha de fin es nula o no es anterior a la
-fecha de inicio (RN-05).
-R4. Operaciones de datos
-a) Registre con un solo INSERT, sin escribir el identificador, a estos dos usuarios:
+-- • R3. Ajustes estructurales solicitados por Calidad
+Con los datos ya cargados, Calidad detectó tres ajustes. Resúelvalos con ALTER TABLE:
+a) Hay razones sociales de clientes con más de 80 caracteres: amplíe clientes. nombre a 120
+caracteres sin perder la restricción NOT NULL.
+b) La Aeronáutica Civil solo certifica cargas entre 0,5 y 25 kg: agregue a drones la restricción
+chk_drones_carga.
+c) Agregue la clave foránea fk_pilotos_supervisor que garantiza que el supervisor de un piloto
+sea un piloto existente.
+• R4. Operaciones de datos (DML)
+a) Comercial firmó tres clientes nuevos. Regístrelos con una sola sentencia INSERT, sin
+escribir el identificador (debe generarse automáticamente):
+b) Aplique la regla RN-07 con una sola sentencia UPDATE. Indique en un comentario
+cuántas filas se afectaron.
+c) Auditoría ordena eliminar las entregas en estado CANCELADA que no tienen ninguna
+carga registrada (fueron creadas por error en la planilla). Use una sola sentencia
+DELETE con subconsulta. Indique en un comentario cuántas filas se eliminaron.
+d) Escriba una consulta que muestre en una sola salida el total de clientes, el total de
+entregas y el número de drones en MANTENIMIENTO (evidencia 03).
+• R5. Tablero de control operativo
+a) Coordinación de Vuelos quiere revisar las entregas de media distancia con prioridad
+alta: entregas ENTREGADA, con distancia entre 20 y 45 km (inclusive) y prioridad VITAL
+o URGENTE. Use BETWEEN e IN. Columnas: codigo, municipio_destino, distancia_km,
+prioridad. Orden: distancia de mayor a menor.
+b) Auditoría pide dos listados. b.1) Entregas cerradas sin entrega efectiva: su estado no es
+PROGRAMADA, EN_VUELO ni ENTREGADA (use NOT IN) y no tienen fecha de entrega (IS
+NULL). Columnas: codigo, estado, fecha_programada; orden por código. b.2) Entregas
+que sí tienen fecha de entrega (IS NOT NULL) pero no tienen calificación. Columnas:
+codigo, fecha_entrega.
+c) Mantenimiento prepara una campaña de carga pesada y busca drones cuyo estado sea
+distinto de RETIRADO (¡use! =) y que cumplan al menos una de estas condiciones: (i)
+carga máxima de 8 kg o más y menos de 400 horas de vuelo; (ii) autonomía mayor a 80
+km. Columnas: codigo_serie, modelo, carga_max_kg, horas_vuelo, autonomia_km,
+estado. Orden: codigo_serie ascendente.
+d) Talento Humano necesita los pilotos cuya licencia no sea A (use el operador NOT) y que
+ingresaron hasta el 1 de febrero de 2025, inclusive (use <=). Columnas: nombres,
+apellidos, licencia, fecha_ingreso. Orden: fecha de ingreso ascendente.
+• R6. Directorio comercial y calidad de datos
+a) Según RN-13, liste los clientes con teléfono inválido: sin teléfono o con una longitud
+distinta de 10 (use <> y LENGTH). Columnas: nombre en mayúsculas (alias cliente),
+municipio, teléfono mostrando 'SIN TELÉFONO' cuando sea nulo (use COALESCE, alias
+telefono) y número de caracteres del teléfono (alias digitos). Orden: nombre
+ascendente.
+b) Comercial quiere contactar a los clientes con correo corporativo: tienen correo y este
+no termina en ninguno de los dominios gratuitos de RN-13 (use NOT LIKE con %).
+Columnas: nombre, correo en minúsculas (alias correo) y una columna contacto con el
+formato Nombre <correo> construida con CONCAT, con el correo en minúsculas.
+Orden: nombre.
+c) ¿Los drones de la familia Cóndor tienen series de la forma DA-CX? -NN: exactamente
+un carácter después de CX y exactamente dos caracteres al final (use LIKE con _).
+Columnas: codigo_serie, modelo en mayúsculas (alias modelo), horas_vuelo y el
+porcentaje de vida útil consumido según RN-12, redondeado a 1 decimal (alias
+pct_vida_util). Orden: horas de vuelo descendente.
+• R7. Indicadores de gestión
+a) Para el informe a la Secretaría de Salud, calcule por tipo de carga, considerando solo
+entregas en estado ENTREGADA: número de entregas en que aparece (num_entregas),
+kilogramos totales (kg_totales), promedio de kilogramos redondeado a 2 decimales
+(kg_promedio), mínimo (kg_minimo) y máximo (kg_maximo). Columna de identificación:
+tipo_carga (nombre). Orden: kilogramos totales descendente.
+b) Comercial quiere premiar a los clientes estrella: clientes con al menos 2 entregas en
+estado ENTREGADA y calificación promedio de 4 o más. Las entregas sin calificación sí
+cuentan como entregas realizadas, pero no participan en el promedio. Columnas: cliente,
+entregas_realizadas, calificacion_promedio (2 decimales). Orden: promedio descendente
+y, en empate, cliente ascendente.
+• R8. Consultas multitabla
+a) Hoja de vuelo de entregas vitales. Para cada entrega VITAL en estado ENTREGADA muestre:
+codigo, nombre del cliente (alias cliente), nombre completo del piloto (nombres + espacio
++ apellidos, alias piloto), serie del dron (alias dron), nombre de la base del dron (alias base)
+y los minutos transcurridos entre la fecha programada y la fecha de entrega (alias
+minutos_vuelo, entero). Use solo INNER JOIN. Orden: fecha programada ascendente.
+b) Productividad de pilotos. Liste todos los pilotos con su nombre completo (alias piloto),
+licencia y el número de entregas en estado ENTREGADA que han realizado (alias
+entregas_realizadas). Los pilotos sin entregas realizadas deben aparecer con 0. Orden:
+entregas descendentes y, en empate, piloto ascendente.
+c) Organigrama. Muestre cada piloto (nombre completo, alias piloto), su licencia y el nombre
+completo de su supervisor (alias supervisor). Si el piloto no tiene supervisor, muestre
+'DIRECCIÓN DE OPERACIONES'. Orden: supervisor y luego piloto.
+d) Auditoría de RN-05. Detecte las entregas en estado PROGRAMADA cuya distancia supera la
+autonomía del dron asignado. Columnas: codigo, nombre del cliente (alias cliente), serie
+del dron (alias dron), distancia_km, autonomia_km y la diferencia (alias exceso_km).
+• R9. Subconsultas
+a) Liste las entregas en estado ENTREGADA cuya distancia es mayor que el promedio de
+distancia de las entregas en estado ENTREGADA. Columnas: código, municipio_destino,
+distancia_km. Orden: distancia descendente.
+b) Comercial quiere llamar a los clientes que nunca han tenido una entrega. Use NOT IN.
+Columnas: nombre, tipo, municipio, fecha_registro. Orden: fecha de registro y luego
+nombre.
+c) Mantenimiento sospecha de sobreuso: liste los drones cuyas horas de vuelo superan el
+promedio de horas de los drones de su misma base (se consideran todos los drones de la
+base, sin importar su estado). Use una subconsulta correlacionada. Columnas:
+codigo_serie, nombre de la base (alias base), horas_vuelo. Orden: base.
+d) Para la auditoría, liste los drones no retirados que nunca han tenido un mantenimiento
+registrado. Use NOT EXISTS. Columnas: codigo_serie, modelo, estado. Orden: codigo_serie.
+• R10. Vista e índices
+a) Cree la vista vw_tablero_entregas para el área administrativa, con una fila por entrega y
+estas columnas: codigo, fecha_programada, cliente (nombre), tipo_cliente,
+municipio_destino, dron (serie), piloto (nombre completo), prioridad, estado, tipos_carga
+(cantidad de tipos de carga registrados) y peso_total_kg (suma del peso; 0 si la entrega no
+tiene carga). La vista debe incluir también las entregas que aún no tienen carga registrada.
+Pruébela consultando las entregas PROGRAMADA o EN_VUELO ordenadas por fecha
+programada.
+b) Las dos búsquedas más frecuentes del sistema son: (1) entregas filtradas por estado
+dentro de un rango de fechas programadas; (2) clientes filtrados por tipo y municipio. Cree
+dos índices con prefijo idx_ que las optimicen (no sobre claves primarias ni columnas
+UNIQUE). Justifique cada uno en un comentario de 2 o 3 líneas y demuestre que existen
+(SHOW INDEX en MySQL, vista pg_indexes en PostgreSQL).
+• R11. Función almacenada
+a) Cree la función fn_valor_entrega(p_id_entrega) que calcule el valor de una entrega según
+RN-10 y lo devuelva con 2 decimales. Si la entrega no tiene carga, el valor corresponde solo
+a la distancia (con el recargo si aplica). Si la entrega no existe, debe devolver NULL.
+b) Pruébela así: (1) liste las entregas ENTREGADA con prioridad URGENTE con codigo,
+prioridad y el valor (alias valor_cop), orden descendente por valor; (2) ejecute la función
+con el identificador 999.
+c) MySQL: declare la función como READS SQL DATA (con el registro binario activo, MySQL
+exige esa declaración). PostgreSQL: use LANGUAGE plpgsql.
+• R12. Trigger de auditoría
+Auditoría exige trazabilidad automática de los estados (RN-09 y RN-11). Cree el trigger
+trg_entregas_estado con estas características:
+Demuestre que funciona ejecutando exactamente estas tres sentencias y luego consultando
+historial_entregas (con el código de la entrega) y las tres entregas involucradas:
+UPDATE entregas SET estado = 'ENTREGADA', calificacion = 5 WHERE codigo = 'ENT-0018';
+UPDATE entregas SET estado = 'CANCELADA' WHERE codigo = 'ENT-0019';
+UPDATE entregas SET calificacion = 4 WHERE codigo = 'ENT-0011';
+• R13. Procedimiento almacenado
+Operaciones necesita programar entregas sin violar las reglas. Cree el procedimiento
+sp_programar_entrega con 8 parámetros de entrada, en este orden: código, id del cliente, id del
+dron, id del piloto, fecha programada, municipio de destino, distancia en km y prioridad. Debe
+validar, en este orden:
+1. Que el dron y el piloto existan.
+2. Que el dron esté ACTIVO (RN-06).
+3. Que la distancia no supere la autonomía del dron (RN-05).
+4. Que la licencia del piloto permita la distancia (RN-03).
+Si una validación falla, el procedimiento debe detenerse con un error cuyo mensaje explique el
+motivo (MySQL: SIGNAL SQLSTATE '45000'; PostgreSQL: RAISE EXCEPTION). Si todo es válido,
+inserta la entrega (el estado debe quedar PROGRAMADA por el valor por defecto) y muestra un
+mensaje con el identificador generado (MySQL: SELECT; PostgreSQL: RAISE NOTICE).
+Pruébelo con exactamente estas tres llamadas y luego consulte la vista de R10 para la entrega
+ENT-0021:
+CALL sp_programar_entrega('ENT-0021', 11, 3, 3, '2026-10-03 10:00:00', 'Marinilla', 16.0,
+'URGENTE');
+CALL sp_programar_entrega('ENT-0022', 6, 4, 4, '2026-10-03 11:00:00', 'Guarne', 9.0, 'NORMAL');
+CALL sp_programar_entrega('ENT-0023', 2, 7, 7, '2026-10-04 08:00:00', 'Arcabuco', 28.0, 'NORMAL');
+10. Entregables
+En la plataforma del curso se entrega solo el enlace al repositorio Git (GitHub, GitLab o Bitbucket)
+que contiene la carpeta parcial-practico-2. El enlace debe abrir directamente la carpeta y permitir
+ver los archivos sin pedir acceso. Dentro de la carpeta deben estar únicamente:
+1. El modelo relacional (R1).
+2. El script completo de MySQL (R2 a R13, en orden, ejecutable de principio a fin).
+3. El script completo de PostgreSQL (R2 a R13, en orden, ejecutable de principio a fin).
+4. Las 8 evidencias de la tabla siguiente.
+5. El README.md.
 
-b) Aplique RN-06 con un solo UPDATE.
-c) Elimine con un solo DELETE los viajes CANCELADOS con 0 km (fueron pruebas del sistema).
-d) Muestre en una sola fila: total de usuarios (usuarios), total de viajes (viajes) y bicicletas en
-TALLER (bicis_en_taller).
-R5. Filtros operativos
-a) Viajes FINALIZADOS de 2 a 6 km (inclusive) que salieron de las estaciones 1 o 2. Use BETWEEN e IN.
-Columnas: id_viaje, id_estacion_origen, km, calificacion. Orden: km de mayor a menor.
-b) Bicicletas que no están en BAJA (use !=) y que tienen menos de 300 km o 1.200 km o más.
-Columnas: codigo, modelo, estado, km_recorridos. Orden: código ascendente.
-c) Viajes sin fecha de fin (IS NULL) cuyo estado no sea CANCELADO (use NOT IN). Columnas:
-id_viaje, id_usuario, estado, fecha_inicio. Orden: fecha de inicio.
-d) Usuarios cuyo plan no es PREMIUM (use NOT) registrados hasta el 31 de marzo de 2026, inclusive
-(<=). Columnas: nombres, apellidos, plan, fecha_registro. Orden: fecha ascendente.
-R6. Patrones y funciones
-a) Usuarios con correo institucional: tienen correo (IS NOT NULL) y no es de un dominio gratuito de
-RN-11 (use NOT LIKE). Columnas: nombre completo con CONCAT (alias usuario) y correo en
-minúsculas (alias correo). Orden: usuario.
-b) Bicicletas eléctricas de serie según RN-07 (use LIKE con _). Columnas: codigo, modelo en
-mayúsculas (alias modelo), km_recorridos y el porcentaje del límite de 1.500 km de RN-06,
-redondeado a 1 decimal (alias pct_revision). Orden: km descendente. 
-c) Usuarios con teléfono inválido: sin teléfono o con longitud distinta de 10 (use <> y LENGTH).
-Columnas: usuario (nombre completo), telefono (si es nulo, 'SIN TELÉFONO' con COALESCE),
-digitos. Orden: usuario.
-R7. Indicadores
-a) Por estación de origen, solo viajes FINALIZADOS: estacion (nombre), viajes (cantidad),
-km_totales, km_promedio (2 decimales), km_minimo, km_maximo. Orden: km totales descendente.
-b) Usuarios con al menos 2 viajes FINALIZADOS y más de 10 km en total. Columnas: usuario,
-viajes, km_totales. Orden: km totales descendente.
-R8. Consultas multitabla
-a) Viajes FINALIZADOS de usuarios PREMIUM (4 tablas, INNER JOIN): id_viaje, usuario,
-bicicleta (código), origen (nombre de la estación), km, minutos (entre inicio y fin, entero). Orden:
-id_viaje.
-b) Todas las estaciones con su ocupación: estacion, capacidad, bicicletas (cantidad, cualquier
-estado; 0 si no tiene) y cupos_libres (capacidad menos bicicletas). Orden: id de la estación.
-c) Cada usuario con el nombre completo de quien lo refirió (alias referido_por); si no tiene, 'SIN
-REFERIDOR'. Orden: id del usuario.
-d) Accesorios alquilados en viajes FINALIZADOS (3 tablas): id_viaje, accesorio, cantidad,
-subtotal (cantidad × precio). Orden: id_viaje y accesorio.
-R9. Subconsultas
-a) Viajes FINALIZADOS con km mayor que el promedio de km de los viajes FINALIZADOS. Columnas:
-id_viaje, km. Orden: km descendente.
-b) Usuarios que nunca han hecho un viaje (use NOT IN). Columnas: nombres, apellidos,
-fecha_registro. Orden: fecha de registro.
-c) Bicicletas con más km que el promedio de las bicicletas de su misma estación (todas, sin importar
-el estado). Use una subconsulta correlacionada. Columnas: codigo, id_estacion, km_recorridos.
-Orden: código.
-d) Accesorios que nunca se han alquilado (use NOT EXISTS). Columnas: nombre, precio.
-R10. Vista e índices
-a) Cree la vista vw_actividad_usuarios con una fila por usuario, incluidos los que no tienen viajes:
-id_usuario, usuario (nombre completo), plan, total_viajes (solo FINALIZADOS) y km_totales
-(0 si no tiene). Pruébela: SELECT usuario, plan, total_viajes, km_totales FROM
-vw_actividad_usuarios ORDER BY km_totales DESC, usuario;
-R11. Función
-Cree fn_costo_viaje(p_km, p_plan) que devuelva el costo de un viaje según RN-08, con 2 decimales.
-Pruébela con SELECT fn_costo_viaje(10, 'BASICO'), fn_costo_viaje(10, 'PREMIUM'); y
-listando los viajes FINALIZADOS de la estación 1 con id_viaje, plan, km y costo, ordenados por costo
-descendente. En MySQL, declárela DETERMINISTIC.
-R12. Trigger
-Pruébelo con exactamente estas sentencias y luego consulte el historial con el código de la bicicleta:
-UPDATE bicicletas SET estado = 'ACTIVA' WHERE codigo = 'CV-M02';
-UPDATE bicicletas SET estado = 'BAJA' WHERE codigo = 'CV-E03';
-UPDATE bicicletas SET km_recorridos = km_recorridos + 5 WHERE codigo = 'CV-E01';
-R13. Procedimiento almacenado
-Cree sp_iniciar_viaje(p_id_usuario, p_id_bici, p_fecha) que aplique RN-09: si la bicicleta no
-está ACTIVA, o si el usuario ya tiene un viaje EN_CURSO, debe detenerse con un error que explique el
-motivo. Si todo es válido, inserta el viaje con la estación actual de la bicicleta como origen (estado y km
-quedan con sus valores por defecto) y muestra el id creado. Pruébelo con exactamente estas llamadas y
-luego consulte los viajes de los usuarios 2, 7 y 8:
-CALL sp_iniciar_viaje(7, 3, '2026-10-16 08:00:00');
-CALL sp_iniciar_viaje(8, 4, '2026-10-16 08:05:00');
-CALL sp_iniciar_viaje(2, 1, '2026-10-16 08:10:00');-- 
