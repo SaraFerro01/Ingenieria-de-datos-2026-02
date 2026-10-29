@@ -1,26 +1,26 @@
 use Ejemplo
 switched to db Ejemplo
 db.createCollection('clientes')
-{ ok: 1 }
-db.createCollection('restaurante ')
+{ ok: 1}
+db.createCollection('restaurante')
 { ok: 1 }
 db.stats
 
 db.stats()
 
-[Function: stats] AsyncFunction {
-  apiVersions: [ 0, 0 ],
-  returnsPromise: true,
-  serverVersions: [ '0.0.0', '999.999.999' ],
-  topologies: [ 'ReplSet', 'Standalone', 'Sharded', 'LoadBalanced' ],
-  returnType: { type: 'unknown', attributes: {} },
-  deprecated: false,
-  platforms: [ 'Compass', 'Browser', 'CLI' ],
-  isDirectShellCommand: false,
-  acceptsRawInput: false,
-  shellCommandCompleter: undefined,
-  newShellCommandCompleter: undefined,
-  help: [Function (anonymous)] Help
+[Function: stats] AsyncFuction {
+apiVersion: [0 , 0]
+returnsPromise: true,
+serverVersion: [ '0. 0. 0', '999.999.999'],
+topologies: ['ReplSet' , 'Standalone', 'Sharded´, 'LoadBalanced'],
+returnType: [type: 'unknown' , attributes: {} },
+deprecated: false,
+platforms: ['Compass' , 'Browser', 'CLI' ],
+isDirectShellCommand: false,
+acceptsRawInput: false,
+shellCommandCompleter: undefined,
+newShellCommansCompleter: undefined,
+help: [Function (anonymous)] Help
 
 db.restaurantes.insertMany([
   { _id: "R02", nombre: "Sushi Nikko", categoria: "Japonesa", ciudad: "Bogotá", barrio: "Usaquén", calificacion: 4.8, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.0305, 4.695] }, etiquetas: ["sushi", "ramen"], horario: { apertura: "12:00", cierre: "22:00" } },
@@ -95,20 +95,23 @@ db.pedidos.insertMany([
   { _id: "PD020", cliente: { id: "C04", nombre: "Camilo Torres" }, restaurante: { id: "R06", nombre: "Verde Vivo", ciudad: "Medellín" }, fecha: new Date("2026-10-14T19:10:00-05:00"), estado: "cancelado", metodo_pago: "nequi", items: [{ producto_id: "P15", nombre: "Hamburguesa de lentejas", precio: 24000, cantidad: 2 }], total: 48000 }
 ])
 
-print("Restaurantes: " + db.restaurantes.countDocuments())   
-          
-Restaurantes: 10
-print("Clientes: " + db.clientes.countDocuments())            
+print("Restaurantes:" + db.restaurantes.countDocuments())
+Restaurantes:10
+
+print( "Clientes:" + db.clientes.countDocuments())
 Clientes: 8
-print("Productos: " + db.productos.countDocuments())         
-print("Pedidos: " + db.pedidos.countDocuments())  
+
+print( "Productos:" + db.productos.countDocuments())
+print( "Pedidos:" + db.pedidos.countDocuments())
 Productos: 24
 Pedidos: 20
+
 show dbs
-Ejemplo  216.00 KiB
-admin     40.00 KiB
-config   108.00 KiB
-local     96.00 KiB
+Ejemplo 216.00 KiB
+admin    40.00BiB
+config  108.00 KiB
+local    96.00 KiB
+
 db.restaurantes.insertOne([
   { _id: "R012", 
     nombre: "fastfood",
@@ -130,3 +133,23 @@ b.clientes.insertOne(
     direcciones: [{ alias: "Casa", direccion: "Calle 75 # 10-74", barrio: "suba" }],
     preferencias: ["japonesa", "colombiana"] 
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
