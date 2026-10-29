@@ -1,140 +1,116 @@
-db.version()
-Is.status().ok
-show dbs
+// --- 1. Verificación del Servidor ---
+db.version();
+db.isMaster().ok; 
 
--- Crear base de datos--
-{
-  "nombre": "Arepas La 19",
-  "categoria": "Comida colombiana",
-  "ciudad": "Bogotá",
-  "barrio": "Chapinero",
-  "calificacion": 4.6,
-  "domicilio": true,
-  "ubicacion":{ "type": "Point", "coordinates": [-74.0636, 4.6486]},
-  "etiquetas": ["arepas", "desayunos", "económico"]
-} 
+// Para ver las bases de datos en JavaScript usamos el comando administrativo listDatabases
+const dbsAdmin = db.getMongo().getDB("admin");
+printjson(dbsAdmin.runCommand({ listDatabases: 1 }));
 
-use saborya
+// --- 2. Crear y Usar la Base de Datos ---
+// Nota: En un script de MongoSH, 'use saborya' cambia el contexto global, 
+// pero para asegurar compatibilidad total usamos db.getSiblingDB
+db = db.getSiblingDB("saborya");
 
-db.restaurantes.insertMany([
-  { nombre: "Sushi Nikko", categoria: "Japonesa", ciudad: "Bogotá", barrio: "Usaquén",
-    calificacion: 4.8, domicilio: true,
-    ubicacion: { type: "Point", coordinates: [-74.0305, 4.6950] },
-    etiquetas: ["sushi", "ramen"], horario: { apertura: "12:00", cierre: "22:00" } },
-  { nombre: "Verde Vivo", categoria: "Vegetariana", ciudad: "Medellín", barrio: "El Poblado",
-    calificacion: 4.4, domicilio: false,
-    ubicacion: { type: "Point", coordinates: [-75.5664, 6.2088] },
-    etiquetas: ["vegano", "saludable"], menu_vegano: true },
-  { nombre: "Brasa Caribe", categoria: "Asados", ciudad: "Barranquilla", barrio: "El Prado",
-    calificacion: 4.2, domicilio: true,
-    ubicacion: { type: "Point", coordinates: [-74.7964, 10.9878] },
-    etiquetas: ["asados", "parrilla"] }
-])
+// --- 3. Inserción de Datos ---
+db.restaurantes.insertOne({ 
+  "nombre": "Arepas La 19", 
+  "categoria": "Comida colombiana", 
+  "ciudad": "Bogotá", 
+  "barrio": "Chapinero", 
+  "calificacion": 4.6, 
+  "domicilio": true, 
+  "ubicacion": { "type": "Point", "coordinates": [-74.0636, 4.6486] }, 
+  "etiquetas": ["arepas", "desayunos", "económico"] 
+});
 
-db.clientes.insertOne({
-  nombre: "Laura Gómez", email: "laura.gomez@example.com", ciudad: "Bogotá",
-  fecha_registro: new Date("2026-08-14"),
-  direcciones: [ { alias: "Casa", direccion: "Calle 72 # 10-34", barrio: "Chapinero" } ],
-  preferencias: ["japonesa", "colombiana"]
-})
+db.restaurantes.insertMany([ 
+  { nombre: "Sushi Nikko", categoria: "Japonesa", ciudad: "Bogotá", barrio: "Usaquén", calificacion: 4.8, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.0305, 4.6950] }, etiquetas: ["sushi", "ramen"], horario: { apertura: "12:00", cierre: "22:00" } }, 
+  { nombre: "Verde Vivo", categoria: "Vegetariana", ciudad: "Medellín", barrio: "El Poblado", calificacion: 4.4, domicilio: false, ubicacion: { type: "Point", coordinates: [-75.5664, 6.2088] }, etiquetas: ["vegano", "saludable"], menu_vegano: true }, 
+  { nombre: "Brasa Caribe", categoria: "Asados", ciudad: "Barranquilla", barrio: "El Prado", calificacion: 4.2, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.7964, 10.9878] }, etiquetas: ["asados", "parrilla"] } 
+]);
 
-db.restaurantes.find()
-db.restaurantes.find({ ciudad: "Bogotá" })
-db.restaurante.findOne({ nombre: 2Sushi Nikko"})
-db.restaurantes.find ({ etiquetas: "vegano"})
-db.restaurantes.countDocuments()
-db.restaurantes.countDocuments({ domicilio: true })
+db.clientes.insertOne({ 
+  nombre: "Laura Gómez", 
+  email: "laura.gomez@example.com", 
+  ciudad: "Bogotá", 
+  fecha_registro: new Date("2026-08-14"), 
+  direcciones: [ { alias: "Casa", direccion: "Calle 72 # 10-34", barrio: "Chapinero" } ], 
+  preferencias: ["japonesa", "colombiana"] 
+});
 
--- Diseño y modelado--
+// --- 4. Consultas Básicas ---
+db.restaurantes.find().toArray();
+db.restaurantes.find({ ciudad: "Bogotá" }).toArray();
+db.restaurantes.findOne({ nombre: "Sushi Nikko" }); 
+db.restaurantes.find({ etiquetas: "vegano" }).toArray();
+db.restaurantes.countDocuments();
+db.restaurantes.countDocuments({ domicilio: true });
 
-use saborya
+// --- 5. Diseño y Modelado (Esquemas de Validación) ---
+const esquemaRestaurantes = { 
+  bsonType: "object", 
+  required: ["nombre", "categoria", "ciudad"], 
+  properties: { 
+    nombre: { bsonType: "string", minLength: 2 }, 
+    categoria: { bsonType: "string" }, 
+    ciudad: { bsonType: "string" }, 
+    calificacion: { bsonType: ["double", "int"], minimum: 0, maximum: 5, description: "número entre 0 y 5" }, 
+    domicilio: { bsonType: "bool" }, 
+    etiquetas: { bsonType: "array", items: { bsonType: "string" } }, 
+    ubicacion: { bsonType: "object", required: ["type", "coordinates"], properties: { type: { enum: ["Point"] }, coordinates: { bsonType: "array", minItems: 2, maxItems: 2, items: { bsonType: ["double", "int"] } } } } 
+  } 
+};
 
-const esquemaRestaurantes = {
-  bsonType: "object",
-  required: ["nombre", "categoria", "ciudad"],
-  properties: {
-    nombre:       { bsonType: "string", minLength: 2 },
-    categoria:    { bsonType: "string" },
-    ciudad:       { bsonType: "string" },
-    calificacion: { bsonType: ["double", "int"], minimum: 0, maximum: 5, description: "número entre 0 y 5" },
-    domicilio:    { bsonType: "bool" },
-    etiquetas:    { bsonType: "array", items: { bsonType: "string" } },
-    ubicacion: { bsonType: "object", required: ["type", "coordinates"],
-      properties: { type: { enum: ["Point"] },
-                    coordinates: { bsonType: "array", minItems: 2, maxItems: 2, items: { bsonType: ["double", "int"] } } } }
-  }
+db.runCommand({ collMod: "restaurantes", validator: { $jsonSchema: esquemaRestaurantes }, validationLevel: "strict", validationAction: "error" });
+
+db.restaurantes.updateOne({ nombre: "Sushi Nikko" }, { $set: { calificacion: 4 } }); 
+
+db.restaurantes.find({ $nor: [ { $jsonSchema: esquemaRestaurantes } ] }).toArray();
+
+db.runCommand({ collMod: "clientes", validator: { $jsonSchema: { bsonType: "object", required: ["nombre", "email"], properties: { nombre: { bsonType: "string" }, email: { bsonType: "string", pattern: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" }, puntos: { bsonType: ["int", "long"], minimum: 0 }, direcciones: { bsonType: "array", items: { bsonType: "object", required: ["direccion"] } } } } } });
+
+db.createCollection("productos", { validator: { $jsonSchema: { bsonType: "object", required: ["restaurante_id", "nombre", "precio", "stock"], properties: { restaurante_id: { bsonType: ["objectId", "string"] }, nombre: { bsonType: "string" }, precio: { bsonType: ["int", "long", "decimal"], minimum: 0, description: "pesos como número entero" }, stock: { bsonType: ["int", "long"], minimum: 0 }, disponible: { bsonType: "bool" } } } } });
+
+db.createCollection("pedidos", { validator: { $jsonSchema: { bsonType: "object", required: ["cliente", "restaurante", "fecha", "estado", "items", "total"], properties: { cliente: { bsonType: "object", required: ["id", "nombre"] }, restaurante: { bsonType: "object", required: ["id", "nombre", "ciudad"] }, fecha: { bsonType: "date" }, estado: { enum: ["pendiente", "en_camino", "entregado", "cancelado"] }, metodo_pago: { enum: ["tarjeta", "efectivo", "nequi"] }, items: { bsonType: "array", minItems: 1, items: { bsonType: "object", required: ["producto_id", "nombre", "precio", "cantidad"], properties: { precio: { bsonType: ["int", "long", "decimal"], minimum: 0 }, cantidad: { bsonType: ["int", "long"], minimum: 1 } } } }, total: { bsonType: ["int", "long", "decimal"], minimum: 0 } } } } });
+
+// --- 6. Relaciones y Operaciones entre Colecciones ---
+const arepas = db.restaurantes.findOne({ nombre: "Arepas La 19" })._id;
+const sushi = db.restaurantes.findOne({ nombre: "Sushi Nikko" })._id;
+
+db.productos.insertMany([ 
+  { restaurante_id: arepas, nombre: "Arepa de choclo con queso", tipo: "plato", precio: 9500, stock: 40, disponible: true }, 
+  { restaurante_id: arepas, nombre: "Jugo de lulo", tipo: "bebida", precio: 6000, stock: 60, disponible: true, volumen_ml: 400 }, 
+  { restaurante_id: sushi, nombre: "Combo Sake", tipo: "plato", precio: 41000, stock: 15, disponible: true, piezas: 18 } 
+]);
+
+db.productos.find({ restaurante_id: arepas }, { nombre: 1, precio: 1, _id: 0 }).toArray();
+
+try {
+  db.productos.insertOne({ restaurante_id: arepas, nombre: "Arepa rellena", precio: "14.000", stock: 25 });
+} catch(e) {
+  print("Inserción incorrecta rechazada por el validador.");
 }
-db.restaurantes.find({ $nor: [ { $jsonSchema: esquemaRestaurantes } ] }, { nombre: 1, calificacion: 1 })
 
-db.runCommand({ collMod: "restaurantes", validator: { $jsonSchema: esquemaRestaurantes },
-                validationLevel: "strict", validationAction: "error" })
+const cliente = db.clientes.findOne({ nombre: "Laura Gómez" });
+const combo = db.productos.findOne({ nombre: "Combo Sake" });
 
-db.restaurantes.updateOne({ nombre: "Pizza Rápida" }, { $set: { calificacion: "cinco" } })   // rechazado
-db.restaurantes.updateOne({ nombre: "Pizza Rápida" },
-  { $set: { categoria: "Italiana", calificacion: 4, domicilio: true } })                      // aceptado
-db.restaurantes.find({ $nor: [ { $jsonSchema: esquemaRestaurantes } ] })                       // sin resultados
+db.pedidos.insertOne({ 
+  cliente: { id: cliente._id, nombre: cliente.nombre }, 
+  restaurante: { id: sushi, nombre: "Sushi Nikko", ciudad: "Bogotá" }, 
+  fecha: new Date(), 
+  estado: "pendiente", 
+  metodo_pago: "tarjeta", 
+  items: [ { producto_id: combo._id, nombre: combo.nombre, precio: combo.precio, cantidad: 1 } ], 
+  total: combo.precio * 1 
+});
 
-db.runCommand({ collMod: "clientes", validator: { $jsonSchema: {
-  bsonType: "object", required: ["nombre", "email"],
-  properties: {
-    nombre: { bsonType: "string" },
-    email:  { bsonType: "string", pattern: "^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$" },
-    puntos: { bsonType: ["int", "long"], minimum: 0 },
-    direcciones: { bsonType: "array", items: { bsonType: "object", required: ["direccion"] } }
-  } } } })
+// --- 7. Verificaciones Finales ---
+// Reemplazo de 'show collections' por método nativo
+printjson(db.getCollectionNames());
 
-db.createCollection("productos", { validator: { $jsonSchema: {
-  bsonType: "object", required: ["restaurante_id", "nombre", "precio", "stock"],
-  properties: {
-    restaurante_id: { bsonType: ["objectId", "string"] },
-    nombre:     { bsonType: "string" },
-    precio:     { bsonType: ["int", "long", "decimal"], minimum: 0, description: "pesos como número entero" },
-    stock:      { bsonType: ["int", "long"], minimum: 0 },
-    disponible: { bsonType: "bool" }
-  } } } })
-
-db.createCollection("pedidos", { validator: { $jsonSchema: {
-  bsonType: "object", required: ["cliente", "restaurante", "fecha", "estado", "items", "total"],
-  properties: {
-    cliente:     { bsonType: "object", required: ["id", "nombre"] },
-    restaurante: { bsonType: "object", required: ["id", "nombre", "ciudad"] },
-    fecha:       { bsonType: "date" },
-    estado:      { enum: ["pendiente", "en_camino", "entregado", "cancelado"] },
-    metodo_pago: { enum: ["tarjeta", "efectivo", "nequi"] },
-    items: { bsonType: "array", minItems: 1, items: { bsonType: "object",
-      required: ["producto_id", "nombre", "precio", "cantidad"],
-      properties: { precio: { bsonType: ["int", "long", "decimal"], minimum: 0 },
-                    cantidad: { bsonType: ["int", "long"], minimum: 1 } } } },
-    total: { bsonType: ["int", "long", "decimal"], minimum: 0 }
-  } } } })
-
-const arepas = db.restaurantes.findOne({ nombre: "Arepas La 19" })._id
-const sushi  = db.restaurantes.findOne({ nombre: "Sushi Nikko" })._id
-
-db.productos.insertMany([
-  { restaurante_id: arepas, nombre: "Arepa de choclo con queso", tipo: "plato", precio: 9500, stock: 40, disponible: true },
-  { restaurante_id: arepas, nombre: "Jugo de lulo", tipo: "bebida", precio: 6000, stock: 60, disponible: true, volumen_ml: 400 },
-  { restaurante_id: sushi, nombre: "Combo Sake", tipo: "plato", precio: 41000, stock: 15, disponible: true, piezas: 18 }
-])
-db.productos.find({ restaurante_id: arepas }, { nombre: 1, precio: 1, _id: 0 })
-
-db.productos.insertOne({ restaurante_id: arepas, nombre: "Arepa rellena", precio: "14.000", stock: 25 })
-
-const cliente = db.clientes.findOne({ nombre: "Laura Gómez" })
-const combo   = db.productos.findOne({ nombre: "Combo Sake" })
-
-db.pedidos.insertOne({
-  cliente: { id: cliente._id, nombre: cliente.nombre },
-  restaurante: { id: sushi, nombre: "Sushi Nikko", ciudad: "Bogotá" },
-  fecha: new Date(), estado: "pendiente", metodo_pago: "tarjeta",
-  items: [ { producto_id: combo._id, nombre: combo.nombre, precio: combo.precio, cantidad: 1 } ],
-  total: combo.precio * 1
-})
-
-show collections
-db.restaurantes.countDocuments()   // 5
-db.productos.countDocuments()      // 3
-db.pedidos.countDocuments()        // 1
+print("Total restaurantes: " + db.restaurantes.countDocuments()); 
+print("Total productos: " + db.productos.countDocuments()); 
+print("Total pedidos: " + db.pedidos.countDocuments());
 
 
 
