@@ -1,3 +1,5 @@
+use("saborya")
+switched to db saborya
 // --- 1. Verificación del Servidor ---
 db.version();
 db.isMaster().ok; 
@@ -111,7 +113,296 @@ printjson(db.getCollectionNames());
 print("Total restaurantes: " + db.restaurantes.countDocuments()); 
 print("Total productos: " + db.productos.countDocuments()); 
 print("Total pedidos: " + db.pedidos.countDocuments());
-
+{
+  databases: [
+    { name: 'admin', sizeOnDisk: Long('40960'), empty: false },
+    { name: 'config', sizeOnDisk: Long('110592'), empty: false },
+    { name: 'local', sizeOnDisk: Long('163840'), empty: false },
+    { name: 'saborya', sizeOnDisk: Long('163840'), empty: false }
+  ],
+  totalSize: Long('479232'),
+  totalSizeMb: Long('0'),
+  ok: 1
+}
+Inserción incorrecta rechazada por el validador.
+[ 'pedidos', 'productos', 'clientes', 'restaurantes' ]
+Total restaurantes: 8
+Total productos: 6
+Total pedidos: 2
+db.restaurantes.find({
+  $and: [
+    { domicilio: true },
+    { calificacion: { $gt: 4.3 } },
+    { ciudad: { $in: ["Bogotá", "Medellín"] } }
+  ]
+}).toArray();
+[
+  {
+    _id: ObjectId('6ae3909ac3d0043ad669f880'),
+    nombre: 'Arepas La 19',
+    categoria: 'Comida colombiana',
+    ciudad: 'Bogotá',
+    barrio: 'Chapinero',
+    calificacion: 4.6,
+    domicilio: true,
+    ubicacion: { type: 'Point', coordinates: [ -74.0636, 4.6486 ] },
+    etiquetas: [ 'arepas', 'desayunos', 'económico' ]
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4ec'),
+    nombre: 'Arepas La 19',
+    categoria: 'Comida colombiana',
+    ciudad: 'Bogotá',
+    barrio: 'Chapinero',
+    calificacion: 4.6,
+    domicilio: true,
+    ubicacion: { type: 'Point', coordinates: [ -74.0636, 4.6486 ] },
+    etiquetas: [ 'arepas', 'desayunos', 'económico' ]
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4ed'),
+    nombre: 'Sushi Nikko',
+    categoria: 'Japonesa',
+    ciudad: 'Bogotá',
+    barrio: 'Usaquén',
+    calificacion: 4.8,
+    domicilio: true,
+    ubicacion: { type: 'Point', coordinates: [ -74.0305, 4.695 ] },
+    etiquetas: [ 'sushi', 'ramen' ],
+    horario: { apertura: '12:00', cierre: '22:00' }
+  }
+]
+db.restaurantes.find({
+  etiquetas: { $all: ["asados", "parrilla"] },
+  ciudad: { $nin: ["Medellín"] }
+}).toArray();
+[
+  {
+    _id: ObjectId('6ae3909ac3d0043ad669f883'),
+    nombre: 'Brasa Caribe',
+    categoria: 'Asados',
+    ciudad: 'Barranquilla',
+    barrio: 'El Prado',
+    calificacion: 4.2,
+    domicilio: true,
+    ubicacion: { type: 'Point', coordinates: [ -74.7964, 10.9878 ] },
+    etiquetas: [ 'asados', 'parrilla' ]
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4ef'),
+    nombre: 'Brasa Caribe',
+    categoria: 'Asados',
+    ciudad: 'Barranquilla',
+    barrio: 'El Prado',
+    calificacion: 4.2,
+    domicilio: true,
+    ubicacion: { type: 'Point', coordinates: [ -74.7964, 10.9878 ] },
+    etiquetas: [ 'asados', 'parrilla' ]
+  }
+]
+db.clientes.find({
+  preferencias: { $in: ["japonesa", "vegetariana"] }
+}).toArray();
+[
+  {
+    _id: ObjectId('6ae3909ac3d0043ad669f884'),
+    nombre: 'Laura Gómez',
+    email: 'laura.gomez@example.com',
+    ciudad: 'Bogotá',
+    fecha_registro: 2026-08-14T00:00:00.000Z,
+    direcciones: [
+      { alias: 'Casa', direccion: 'Calle 72 # 10-34', barrio: 'Chapinero' }
+    ],
+    preferencias: [ 'japonesa', 'colombiana' ]
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4f0'),
+    nombre: 'Laura Gómez',
+    email: 'laura.gomez@example.com',
+    ciudad: 'Bogotá',
+    fecha_registro: 2026-08-14T00:00:00.000Z,
+    direcciones: [
+      { alias: 'Casa', direccion: 'Calle 72 # 10-34', barrio: 'Chapinero' }
+    ],
+    preferencias: [ 'japonesa', 'colombiana' ]
+  }
+]
+db.clientes.find({
+  direcciones: { 
+    $elemMatch: { barrio: "Chapinero" } 
+  }
+}).toArray();
+[
+  {
+    _id: ObjectId('6ae3909ac3d0043ad669f884'),
+    nombre: 'Laura Gómez',
+    email: 'laura.gomez@example.com',
+    ciudad: 'Bogotá',
+    fecha_registro: 2026-08-14T00:00:00.000Z,
+    direcciones: [
+      { alias: 'Casa', direccion: 'Calle 72 # 10-34', barrio: 'Chapinero' }
+    ],
+    preferencias: [ 'japonesa', 'colombiana' ]
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4f0'),
+    nombre: 'Laura Gómez',
+    email: 'laura.gomez@example.com',
+    ciudad: 'Bogotá',
+    fecha_registro: 2026-08-14T00:00:00.000Z,
+    direcciones: [
+      { alias: 'Casa', direccion: 'Calle 72 # 10-34', barrio: 'Chapinero' }
+    ],
+    preferencias: [ 'japonesa', 'colombiana' ]
+  }
+]
+db.productos.find({
+  disponible: { $eq: true },
+  precio: { $gte: 5000, $lte: 15000 }
+}).toArray();
+[
+  {
+    _id: ObjectId('6ae3909ac3d0043ad669f885'),
+    restaurante_id: ObjectId('6ae3909ac3d0043ad669f880'),
+    nombre: 'Arepa de choclo con queso',
+    tipo: 'plato',
+    precio: 9500,
+    stock: 40,
+    disponible: true
+  },
+  {
+    _id: ObjectId('6ae3909ac3d0043ad669f886'),
+    restaurante_id: ObjectId('6ae3909ac3d0043ad669f880'),
+    nombre: 'Jugo de lulo',
+    tipo: 'bebida',
+    precio: 6000,
+    stock: 60,
+    disponible: true,
+    volumen_ml: 400
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4f1'),
+    restaurante_id: ObjectId('6ae3909ac3d0043ad669f880'),
+    nombre: 'Arepa de choclo con queso',
+    tipo: 'plato',
+    precio: 9500,
+    stock: 40,
+    disponible: true
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4f2'),
+    restaurante_id: ObjectId('6ae3909ac3d0043ad669f880'),
+    nombre: 'Jugo de lulo',
+    tipo: 'bebida',
+    precio: 6000,
+    stock: 60,
+    disponible: true,
+    volumen_ml: 400
+  }
+]
+db.productos.find({
+  $or: [
+    { volumen_ml: { $exists: true } },
+    { piezas: { $exists: true } }
+  ],
+  stock: { $ne: 0 }
+}).toArray();
+[
+  {
+    _id: ObjectId('6ae3909ac3d0043ad669f886'),
+    restaurante_id: ObjectId('6ae3909ac3d0043ad669f880'),
+    nombre: 'Jugo de lulo',
+    tipo: 'bebida',
+    precio: 6000,
+    stock: 60,
+    disponible: true,
+    volumen_ml: 400
+  },
+  {
+    _id: ObjectId('6ae3909ac3d0043ad669f887'),
+    restaurante_id: ObjectId('6ae3909ac3d0043ad669f881'),
+    nombre: 'Combo Sake',
+    tipo: 'plato',
+    precio: 41000,
+    stock: 15,
+    disponible: true,
+    piezas: 18
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4f2'),
+    restaurante_id: ObjectId('6ae3909ac3d0043ad669f880'),
+    nombre: 'Jugo de lulo',
+    tipo: 'bebida',
+    precio: 6000,
+    stock: 60,
+    disponible: true,
+    volumen_ml: 400
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4f3'),
+    restaurante_id: ObjectId('6ae3909ac3d0043ad669f881'),
+    nombre: 'Combo Sake',
+    tipo: 'plato',
+    precio: 41000,
+    stock: 15,
+    disponible: true,
+    piezas: 18
+  }
+]
+db.pedidos.find({
+  estado: { $in: ["pendiente", "en_camino"] },
+  total: { $gte: 40000 }
+}).toArray();
+[
+  {
+    _id: ObjectId('6ae3909ac3d0043ad669f889'),
+    cliente: { id: ObjectId('6ae3909ac3d0043ad669f884'), nombre: 'Laura Gómez' },
+    restaurante: {
+      id: ObjectId('6ae3909ac3d0043ad669f881'),
+      nombre: 'Sushi Nikko',
+      ciudad: 'Bogotá'
+    },
+    fecha: 2026-10-29T18:29:46.823Z,
+    estado: 'pendiente',
+    metodo_pago: 'tarjeta',
+    items: [
+      {
+        producto_id: ObjectId('6ae3909ac3d0043ad669f887'),
+        nombre: 'Combo Sake',
+        precio: 41000,
+        cantidad: 1
+      }
+    ],
+    total: 41000
+  },
+  {
+    _id: ObjectId('6ae39ef606d0ea9e0e0ed4f5'),
+    cliente: { id: ObjectId('6ae3909ac3d0043ad669f884'), nombre: 'Laura Gómez' },
+    restaurante: {
+      id: ObjectId('6ae3909ac3d0043ad669f881'),
+      nombre: 'Sushi Nikko',
+      ciudad: 'Bogotá'
+    },
+    fecha: 2026-10-29T19:31:02.726Z,
+    estado: 'pendiente',
+    metodo_pago: 'tarjeta',
+    items: [
+      {
+        producto_id: ObjectId('6ae3909ac3d0043ad669f887'),
+        nombre: 'Combo Sake',
+        precio: 41000,
+        cantidad: 1
+      }
+    ],
+    total: 41000
+  }
+]
+db.pedidos.find({
+  metodo_pago: { $in: ["tarjeta", "nequi"] },
+  items: { 
+    $elemMatch: { nombre: "Combo Sake" } 
+  }
+}).toArray();
 
 
 
