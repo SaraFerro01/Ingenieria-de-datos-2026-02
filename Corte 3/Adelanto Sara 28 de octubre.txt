@@ -134,6 +134,14 @@ b.clientes.insertOne(
     preferencias: ["japonesa", "colombiana"] 
   }
 
+-- Explicacion del códigp--
+db.createCollection('clientes') y db.createCollection('restaurante ') crea las colecciones
+insertMany([...]) inserciones para poblar la base de datos
+print("" + db.()) cuenta las insersiones
+show dbs: Lista las bases de datos del servidor. Confirma que la base de datos existe
+insertOne({...}) Registros individuales
+
+
 
 
 
