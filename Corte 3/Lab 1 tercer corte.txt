@@ -1,28 +1,13 @@
-use Ejemplo
-switched to db Ejemplo
-db.createCollection('clientes')
-{ ok: 1 }
-db.createCollection('restaurante ')
-{ ok: 1 }
-db.stats
-
-db.stats()
-
-[Function: stats] AsyncFunction {
-  apiVersions: [ 0, 0 ],
-  returnsPromise: true,
-  serverVersions: [ '0.0.0', '999.999.999' ],
-  topologies: [ 'ReplSet', 'Standalone', 'Sharded', 'LoadBalanced' ],
-  returnType: { type: 'unknown', attributes: {} },
-  deprecated: false,
-  platforms: [ 'Compass', 'Browser', 'CLI' ],
-  isDirectShellCommand: false,
-  acceptsRawInput: false,
-  shellCommandCompleter: undefined,
-  newShellCommandCompleter: undefined,
-  help: [Function (anonymous)] Help
-
+use saborya
+switched to db saborya
+db["saborya"].find()
+use("saborya")
+db.dropDatabase()   
+db
+saborya
+ 2. Restaurantes (R01 a R10)
 db.restaurantes.insertMany([
+  { _id: "R01", nombre: "Arepas La 19", categoria: "Comida colombiana", ciudad: "Bogotá", barrio: "Chapinero", calificacion: 4.6, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.0636, 4.6486] }, etiquetas: ["arepas", "desayunos", "económico"] },
   { _id: "R02", nombre: "Sushi Nikko", categoria: "Japonesa", ciudad: "Bogotá", barrio: "Usaquén", calificacion: 4.8, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.0305, 4.695] }, etiquetas: ["sushi", "ramen"], horario: { apertura: "12:00", cierre: "22:00" } },
   { _id: "R03", nombre: "Pizzería Napoli", categoria: "Italiana", ciudad: "Bogotá", barrio: "Chicó", calificacion: 4.3, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.048, 4.676] }, etiquetas: ["pizza", "pasta"] },
   { _id: "R04", nombre: "Burger Norte", categoria: "Hamburguesas", ciudad: "Bogotá", barrio: "Cedritos", calificacion: 3.9, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.04, 4.724] }, etiquetas: ["hamburguesas", "económico"] },
@@ -32,8 +17,9 @@ db.restaurantes.insertMany([
   { _id: "R08", nombre: "Taco Loco", categoria: "Mexicana", ciudad: "Medellín", barrio: "Envigado", calificacion: 4.1, domicilio: true, ubicacion: { type: "Point", coordinates: [-75.588, 6.171] }, etiquetas: ["tacos", "picante"] },
   { _id: "R09", nombre: "Brasa Caribe", categoria: "Asados", ciudad: "Barranquilla", barrio: "El Prado", calificacion: 4.2, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.7964, 10.9878] }, etiquetas: ["asados", "parrilla"] },
   { _id: "R10", nombre: "Mar y Coco", categoria: "Mariscos", ciudad: "Barranquilla", barrio: "Riomar", calificacion: 4.6, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.812, 11.015] }, etiquetas: ["mariscos", "pescado"] }
-])
-
+]);
+ 
+// 3. Clientes (C01 a C08)
 db.clientes.insertMany([
   { _id: "C01", nombre: "Laura Gómez", email: "laura.gomez@example.com", ciudad: "Bogotá", fecha_registro: new Date("2026-08-14"), puntos: 120, direcciones: [{ alias: "Casa", direccion: "Calle 72 # 10-34", barrio: "Chapinero" }], preferencias: ["japonesa", "colombiana"] },
   { _id: "C02", nombre: "Andrés Rojas", email: "andres.rojas@example.com", ciudad: "Bogotá", fecha_registro: new Date("2025-11-02"), puntos: 340, direcciones: [{ alias: "Casa", direccion: "Carrera 15 # 93-20", barrio: "Chicó" }, { alias: "Oficina", direccion: "Calle 26 # 69-76", barrio: "Salitre" }], preferencias: ["colombiana", "italiana"] },
@@ -43,8 +29,9 @@ db.clientes.insertMany([
   { _id: "C06", nombre: "Santiago Pérez", email: "santiago.perez@example.com", ciudad: "Barranquilla", fecha_registro: new Date("2026-01-15"), puntos: 200, direcciones: [{ alias: "Casa", direccion: "Carrera 54 # 72-80", barrio: "El Prado" }], preferencias: ["asados", "mariscos"] },
   { _id: "C07", nombre: "Daniela Martínez", email: "daniela.martinez@example.com", ciudad: "Barranquilla", fecha_registro: new Date("2026-07-07"), puntos: 80, direcciones: [{ alias: "Apartamento", direccion: "Calle 98 # 52-115", barrio: "Riomar" }], preferencias: ["mariscos"] },
   { _id: "C08", nombre: "Julián Castro", email: "julian.castro@example.com", ciudad: "Bogotá", fecha_registro: new Date("2024-12-01"), puntos: 600, direcciones: [{ alias: "Casa", direccion: "Calle 85 # 12-30", barrio: "Chicó" }], preferencias: ["japonesa", "italiana", "hamburguesas"] }
-])
-
+]);
+ 
+// 4. Productos (P01 a P24)
 db.productos.insertMany([
   { _id: "P01", restaurante_id: "R01", nombre: "Arepa de choclo con queso", tipo: "plato", precio: 9500, stock: 40, disponible: true, descripcion: "Arepa dulce de maíz tierno con queso campesino derretido" },
   { _id: "P02", restaurante_id: "R01", nombre: "Arepa rellena de carne", tipo: "plato", precio: 14000, stock: 25, disponible: true, descripcion: "Arepa asada rellena de carne desmechada y hogao" },
@@ -70,8 +57,9 @@ db.productos.insertMany([
   { _id: "P22", restaurante_id: "R10", nombre: "Cazuela de mariscos", tipo: "plato", precio: 52000, stock: 10, disponible: true, descripcion: "Mariscos en salsa de coco con arroz blanco" },
   { _id: "P23", restaurante_id: "R10", nombre: "Arroz con coco y pescado", tipo: "plato", precio: 39000, stock: 14, disponible: true, descripcion: "Pescado frito con arroz con coco y patacón" },
   { _id: "P24", restaurante_id: "R10", nombre: "Limonada de coco", tipo: "bebida", precio: 9000, stock: 30, disponible: true, descripcion: "Limonada cremosa de coco", volumen_ml: 400 }
-])
-
+]);
+ 
+// 5. Pedidos (PD001 a PD020)
 db.pedidos.insertMany([
   { _id: "PD001", cliente: { id: "C01", nombre: "Laura Gómez" }, restaurante: { id: "R02", nombre: "Sushi Nikko", ciudad: "Bogotá" }, fecha: new Date("2026-10-01T19:30:00-05:00"), estado: "entregado", metodo_pago: "tarjeta", items: [{ producto_id: "P04", nombre: "Combo Sake", precio: 41000, cantidad: 1 }, { producto_id: "P06", nombre: "Té verde", precio: 7000, cantidad: 2 }], total: 55000 },
   { _id: "PD002", cliente: { id: "C02", nombre: "Andrés Rojas" }, restaurante: { id: "R01", nombre: "Arepas La 19", ciudad: "Bogotá" }, fecha: new Date("2026-10-01T08:15:00-05:00"), estado: "entregado", metodo_pago: "efectivo", items: [{ producto_id: "P01", nombre: "Arepa de choclo con queso", precio: 9500, cantidad: 2 }, { producto_id: "P03", nombre: "Jugo de lulo", precio: 6000, cantidad: 1 }], total: 25000 },
@@ -93,40 +81,759 @@ db.pedidos.insertMany([
   { _id: "PD018", cliente: { id: "C07", nombre: "Daniela Martínez" }, restaurante: { id: "R09", nombre: "Brasa Caribe", ciudad: "Barranquilla" }, fecha: new Date("2026-10-13T21:00:00-05:00"), estado: "pendiente", metodo_pago: "tarjeta", items: [{ producto_id: "P21", nombre: "Costillas BBQ", precio: 45000, cantidad: 1 }, { producto_id: "P20", nombre: "Picada para dos", precio: 58000, cantidad: 1 }], total: 103000 },
   { _id: "PD019", cliente: { id: "C02", nombre: "Andrés Rojas" }, restaurante: { id: "R05", nombre: "Ajiaco & Co", ciudad: "Bogotá" }, fecha: new Date("2026-10-14T12:45:00-05:00"), estado: "entregado", metodo_pago: "tarjeta", items: [{ producto_id: "P12", nombre: "Ajiaco santafereño", precio: 28000, cantidad: 2 }], total: 56000 },
   { _id: "PD020", cliente: { id: "C04", nombre: "Camilo Torres" }, restaurante: { id: "R06", nombre: "Verde Vivo", ciudad: "Medellín" }, fecha: new Date("2026-10-14T19:10:00-05:00"), estado: "cancelado", metodo_pago: "nequi", items: [{ producto_id: "P15", nombre: "Hamburguesa de lentejas", precio: 24000, cantidad: 2 }], total: 48000 }
-])
+]);
+SyntaxError: Missing semicolon. (1:3)
 
-print("Restaurantes: " + db.restaurantes.countDocuments())   
-          
-Restaurantes: 10
-print("Clientes: " + db.clientes.countDocuments())            
-Clientes: 8
-print("Productos: " + db.productos.countDocuments())         
-print("Pedidos: " + db.pedidos.countDocuments())  
-Productos: 24
-Pedidos: 20
-show dbs
-Ejemplo  216.00 KiB
-admin     40.00 KiB
-config   108.00 KiB
-local     96.00 KiB
-db.restaurantes.insertOne([
-  { _id: "R012", 
-    nombre: "fastfood",
-    categoria: "Comida rapida", 
-    ciudad: "Bogotá", 
-    barrio: "suba", 
-    calificacion: 4.8, 
-    domicilio: false, 
-    ubicacion: { type: "Point", coordinates: [-74.1636, 4.6486] }, etiquetas: ["amburgesas ", "perros", "salchipapas"] }])
-
-b.clientes.insertOne(
-  {
-    _id: "C025", 
-    nombre: "Juan Cortes", 
-    email: "juanesteb.cortes", 
-    ciudad: "Bogotá", 
-    fecha_registro: new Date("2026-08-16"),
-    puntos: 150, 
-    direcciones: [{ alias: "Casa", direccion: "Calle 75 # 10-74", barrio: "suba" }],
-    preferencias: ["japonesa", "colombiana"] 
+> 1 |  2. Restaurantes (R01 a R10)
+    |    ^
+  2 | db.restaurantes.insertMany([
+  3 |   { _id: "R01", nombre: "Arepas La 19", categoria: "Comida colombiana", ciudad: "Bogotá", barrio: "Chapinero", calificacion: 4.6, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.0636, 4.6486] }, etiquetas: ["arepas", "desayunos", "económico"] },
+  4 |   { _id: "R02", nombre: "Sushi Nikko", categoria: "Japonesa", ciudad: "Bogotá", barrio: "Usaquén", calificacion: 4.8, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.0305, 4.695] }, etiquetas: ["sushi", "ramen"], horario: { apertura: "12:00", cierre: "22:00" } },
+db = db.getSiblingDB("saborya");
+db.dropDatabase();
+print("Base actual: " + db.getName());
+Base actual: saborya
+db.restaurantes.insertMany([
+  { _id: "R01", nombre: "Arepas La 19", categoria: "Comida colombiana", ciudad: "Bogotá", barrio: "Chapinero", calificacion: 4.6, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.0636, 4.6486] }, etiquetas: ["arepas", "desayunos", "económico"] },
+  { _id: "R02", nombre: "Sushi Nikko", categoria: "Japonesa", ciudad: "Bogotá", barrio: "Usaquén", calificacion: 4.8, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.0305, 4.695] }, etiquetas: ["sushi", "ramen"], horario: { apertura: "12:00", cierre: "22:00" } },
+  { _id: "R03", nombre: "Pizzería Napoli", categoria: "Italiana", ciudad: "Bogotá", barrio: "Chicó", calificacion: 4.3, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.048, 4.676] }, etiquetas: ["pizza", "pasta"] },
+  { _id: "R04", nombre: "Burger Norte", categoria: "Hamburguesas", ciudad: "Bogotá", barrio: "Cedritos", calificacion: 3.9, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.04, 4.724] }, etiquetas: ["hamburguesas", "económico"] },
+  { _id: "R05", nombre: "Ajiaco & Co", categoria: "Comida colombiana", ciudad: "Bogotá", barrio: "La Candelaria", calificacion: 4.5, domicilio: false, ubicacion: { type: "Point", coordinates: [-74.0726, 4.5964] }, etiquetas: ["ajiaco", "almuerzos"] },
+  { _id: "R06", nombre: "Verde Vivo", categoria: "Vegetariana", ciudad: "Medellín", barrio: "El Poblado", calificacion: 4.4, domicilio: false, ubicacion: { type: "Point", coordinates: [-75.5664, 6.2088] }, etiquetas: ["vegano", "saludable"], menu_vegano: true },
+  { _id: "R07", nombre: "Bandeja Paisa Doña Rosa", categoria: "Comida colombiana", ciudad: "Medellín", barrio: "Laureles", calificacion: 4.7, domicilio: true, ubicacion: { type: "Point", coordinates: [-75.59, 6.245] }, etiquetas: ["bandeja paisa", "almuerzos"] },
+  { _id: "R08", nombre: "Taco Loco", categoria: "Mexicana", ciudad: "Medellín", barrio: "Envigado", calificacion: 4.1, domicilio: true, ubicacion: { type: "Point", coordinates: [-75.588, 6.171] }, etiquetas: ["tacos", "picante"] },
+  { _id: "R09", nombre: "Brasa Caribe", categoria: "Asados", ciudad: "Barranquilla", barrio: "El Prado", calificacion: 4.2, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.7964, 10.9878] }, etiquetas: ["asados", "parrilla"] },
+  { _id: "R10", nombre: "Mar y Coco", categoria: "Mariscos", ciudad: "Barranquilla", barrio: "Riomar", calificacion: 4.6, domicilio: true, ubicacion: { type: "Point", coordinates: [-74.812, 11.015] }, etiquetas: ["mariscos", "pescado"] }
+]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 'R01',
+    '1': 'R02',
+    '2': 'R03',
+    '3': 'R04',
+    '4': 'R05',
+    '5': 'R06',
+    '6': 'R07',
+    '7': 'R08',
+    '8': 'R09',
+    '9': 'R10'
   }
+}
+// 3. Clientes (C01 a C08)
+db.clientes.insertMany([
+  { _id: "C01", nombre: "Laura Gómez", email: "laura.gomez@example.com", ciudad: "Bogotá", fecha_registro: new Date("2026-08-14"), puntos: 120, direcciones: [{ alias: "Casa", direccion: "Calle 72 # 10-34", barrio: "Chapinero" }], preferencias: ["japonesa", "colombiana"] },
+  { _id: "C02", nombre: "Andrés Rojas", email: "andres.rojas@example.com", ciudad: "Bogotá", fecha_registro: new Date("2025-11-02"), puntos: 340, direcciones: [{ alias: "Casa", direccion: "Carrera 15 # 93-20", barrio: "Chicó" }, { alias: "Oficina", direccion: "Calle 26 # 69-76", barrio: "Salitre" }], preferencias: ["colombiana", "italiana"] },
+  { _id: "C03", nombre: "Valentina Ríos", email: "valentina.rios@example.com", ciudad: "Bogotá", fecha_registro: new Date("2026-03-21"), puntos: 50, direcciones: [{ alias: "Apartamento", direccion: "Calle 140 # 11-45", barrio: "Cedritos" }], preferencias: ["hamburguesas"] },
+  { _id: "C04", nombre: "Camilo Torres", email: "camilo.torres@example.com", ciudad: "Medellín", fecha_registro: new Date("2025-06-10"), puntos: 410, direcciones: [{ alias: "Casa", direccion: "Carrera 70 # 44-12", barrio: "Laureles" }], preferencias: ["colombiana", "mexicana"] },
+  { _id: "C05", nombre: "Mariana López", email: "mariana.lopez@example.com", ciudad: "Medellín", fecha_registro: new Date("2026-09-30"), puntos: 0, direcciones: [{ alias: "Casa", direccion: "Calle 10 # 43-15", barrio: "El Poblado" }], preferencias: ["vegetariana"] },
+  { _id: "C06", nombre: "Santiago Pérez", email: "santiago.perez@example.com", ciudad: "Barranquilla", fecha_registro: new Date("2026-01-15"), puntos: 200, direcciones: [{ alias: "Casa", direccion: "Carrera 54 # 72-80", barrio: "El Prado" }], preferencias: ["asados", "mariscos"] },
+  { _id: "C07", nombre: "Daniela Martínez", email: "daniela.martinez@example.com", ciudad: "Barranquilla", fecha_registro: new Date("2026-07-07"), puntos: 80, direcciones: [{ alias: "Apartamento", direccion: "Calle 98 # 52-115", barrio: "Riomar" }], preferencias: ["mariscos"] },
+  { _id: "C08", nombre: "Julián Castro", email: "julian.castro@example.com", ciudad: "Bogotá", fecha_registro: new Date("2024-12-01"), puntos: 600, direcciones: [{ alias: "Casa", direccion: "Calle 85 # 12-30", barrio: "Chicó" }], preferencias: ["japonesa", "italiana", "hamburguesas"] }
+]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 'C01',
+    '1': 'C02',
+    '2': 'C03',
+    '3': 'C04',
+    '4': 'C05',
+    '5': 'C06',
+    '6': 'C07',
+    '7': 'C08'
+  }
+}
+// 4. Productos (P01 a P24)
+db.productos.insertMany([
+  { _id: "P01", restaurante_id: "R01", nombre: "Arepa de choclo con queso", tipo: "plato", precio: 9500, stock: 40, disponible: true, descripcion: "Arepa dulce de maíz tierno con queso campesino derretido" },
+  { _id: "P02", restaurante_id: "R01", nombre: "Arepa rellena de carne", tipo: "plato", precio: 14000, stock: 25, disponible: true, descripcion: "Arepa asada rellena de carne desmechada y hogao" },
+  { _id: "P03", restaurante_id: "R01", nombre: "Jugo de lulo", tipo: "bebida", precio: 6000, stock: 60, disponible: true, descripcion: "Jugo natural de lulo en agua", volumen_ml: 400 },
+  { _id: "P04", restaurante_id: "R02", nombre: "Combo Sake", tipo: "plato", precio: 41000, stock: 15, disponible: true, descripcion: "Selección de rollos de salmón con salsa de la casa", piezas: 18 },
+  { _id: "P05", restaurante_id: "R02", nombre: "Ramen tonkotsu", tipo: "plato", precio: 36000, stock: 20, disponible: true, descripcion: "Caldo de cerdo, fideos, huevo marinado y cebollín" },
+  { _id: "P06", restaurante_id: "R02", nombre: "Té verde", tipo: "bebida", precio: 7000, stock: 50, disponible: true, descripcion: "Té verde japonés caliente", volumen_ml: 300 },
+  { _id: "P07", restaurante_id: "R03", nombre: "Pizza hawaiana mediana", tipo: "plato", precio: 32000, stock: 30, disponible: true, descripcion: "Pizza de jamón, piña y queso mozzarella", tamano: "mediana", masa: "delgada" },
+  { _id: "P08", restaurante_id: "R03", nombre: "Pizza margarita grande", tipo: "plato", precio: 38000, stock: 25, disponible: true, descripcion: "Pizza de tomate, albahaca y queso mozzarella", tamano: "grande", masa: "tradicional" },
+  { _id: "P09", restaurante_id: "R03", nombre: "Lasaña boloñesa", tipo: "plato", precio: 29000, stock: 0, disponible: false, descripcion: "Lasaña de carne gratinada con queso" },
+  { _id: "P10", restaurante_id: "R04", nombre: "Hamburguesa clásica", tipo: "plato", precio: 22000, stock: 45, disponible: true, descripcion: "Carne de res, queso cheddar, lechuga y tomate" },
+  { _id: "P11", restaurante_id: "R04", nombre: "Papas a la francesa", tipo: "acompañamiento", precio: 8000, stock: 80, disponible: true, descripcion: "Papas fritas crocantes con sal marina" },
+  { _id: "P12", restaurante_id: "R05", nombre: "Ajiaco santafereño", tipo: "plato", precio: 28000, stock: 35, disponible: true, descripcion: "Sopa de tres papas con pollo, guascas, crema y alcaparras" },
+  { _id: "P13", restaurante_id: "R05", nombre: "Chocolate con queso", tipo: "bebida", precio: 9000, stock: 40, disponible: true, descripcion: "Chocolate caliente con queso y almojábana", volumen_ml: 350 },
+  { _id: "P14", restaurante_id: "R06", nombre: "Bowl de quinua", tipo: "plato", precio: 26000, stock: 20, disponible: true, descripcion: "Quinua, aguacate, garbanzos y vegetales asados" },
+  { _id: "P15", restaurante_id: "R06", nombre: "Hamburguesa de lentejas", tipo: "plato", precio: 24000, stock: 18, disponible: true, descripcion: "Hamburguesa vegana de lentejas con pan integral" },
+  { _id: "P16", restaurante_id: "R07", nombre: "Bandeja paisa", tipo: "plato", precio: 34000, stock: 30, disponible: true, descripcion: "Fríjoles, arroz, chicharrón, huevo, carne molida, maduro y arepa" },
+  { _id: "P17", restaurante_id: "R07", nombre: "Arepa con hogao", tipo: "acompañamiento", precio: 8000, stock: 50, disponible: true, descripcion: "Arepa paisa con hogao casero" },
+  { _id: "P18", restaurante_id: "R08", nombre: "Tacos al pastor x3", tipo: "plato", precio: 21000, stock: 40, disponible: true, descripcion: "Tres tacos de cerdo al pastor con piña y salsa picante" },
+  { _id: "P19", restaurante_id: "R08", nombre: "Burrito de pollo", tipo: "plato", precio: 25000, stock: 22, disponible: true, descripcion: "Burrito de pollo con fríjoles, queso y guacamole" },
+  { _id: "P20", restaurante_id: "R09", nombre: "Picada para dos", tipo: "plato", precio: 58000, stock: 12, disponible: true, descripcion: "Carne, chorizo, butifarra, yuca y bollo" },
+  { _id: "P21", restaurante_id: "R09", nombre: "Costillas BBQ", tipo: "plato", precio: 45000, stock: 15, disponible: true, descripcion: "Costillas de cerdo a la parrilla con salsa BBQ" },
+  { _id: "P22", restaurante_id: "R10", nombre: "Cazuela de mariscos", tipo: "plato", precio: 52000, stock: 10, disponible: true, descripcion: "Mariscos en salsa de coco con arroz blanco" },
+  { _id: "P23", restaurante_id: "R10", nombre: "Arroz con coco y pescado", tipo: "plato", precio: 39000, stock: 14, disponible: true, descripcion: "Pescado frito con arroz con coco y patacón" },
+  { _id: "P24", restaurante_id: "R10", nombre: "Limonada de coco", tipo: "bebida", precio: 9000, stock: 30, disponible: true, descripcion: "Limonada cremosa de coco", volumen_ml: 400 }
+]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 'P01',
+    '1': 'P02',
+    '2': 'P03',
+    '3': 'P04',
+    '4': 'P05',
+    '5': 'P06',
+    '6': 'P07',
+    '7': 'P08',
+    '8': 'P09',
+    '9': 'P10',
+    '10': 'P11',
+    '11': 'P12',
+    '12': 'P13',
+    '13': 'P14',
+    '14': 'P15',
+    '15': 'P16',
+    '16': 'P17',
+    '17': 'P18',
+    '18': 'P19',
+    '19': 'P20',
+    '20': 'P21',
+    '21': 'P22',
+    '22': 'P23',
+    '23': 'P24'
+  }
+}
+// 5. Pedidos (PD001 a PD020)
+db.pedidos.insertMany([
+  { _id: "PD001", cliente: { id: "C01", nombre: "Laura Gómez" }, restaurante: { id: "R02", nombre: "Sushi Nikko", ciudad: "Bogotá" }, fecha: new Date("2026-10-01T19:30:00-05:00"), estado: "entregado", metodo_pago: "tarjeta", items: [{ producto_id: "P04", nombre: "Combo Sake", precio: 41000, cantidad: 1 }, { producto_id: "P06", nombre: "Té verde", precio: 7000, cantidad: 2 }], total: 55000 },
+  { _id: "PD002", cliente: { id: "C02", nombre: "Andrés Rojas" }, restaurante: { id: "R01", nombre: "Arepas La 19", ciudad: "Bogotá" }, fecha: new Date("2026-10-01T08:15:00-05:00"), estado: "entregado", metodo_pago: "efectivo", items: [{ producto_id: "P01", nombre: "Arepa de choclo con queso", precio: 9500, cantidad: 2 }, { producto_id: "P03", nombre: "Jugo de lulo", precio: 6000, cantidad: 1 }], total: 25000 },
+  { _id: "PD003", cliente: { id: "C08", nombre: "Julián Castro" }, restaurante: { id: "R03", nombre: "Pizzería Napoli", ciudad: "Bogotá" }, fecha: new Date("2026-10-02T20:10:00-05:00"), estado: "entregado", metodo_pago: "tarjeta", items: [{ producto_id: "P07", nombre: "Pizza hawaiana mediana", precio: 32000, cantidad: 1 }, { producto_id: "P08", nombre: "Pizza margarita grande", precio: 38000, cantidad: 1 }], total: 70000 },
+  { _id: "PD004", cliente: { id: "C03", nombre: "Valentina Ríos" }, restaurante: { id: "R04", nombre: "Burger Norte", ciudad: "Bogotá" }, fecha: new Date("2026-10-03T13:05:00-05:00"), estado: "cancelado", metodo_pago: "nequi", items: [{ producto_id: "P10", nombre: "Hamburguesa clásica", precio: 22000, cantidad: 2 }, { producto_id: "P11", nombre: "Papas a la francesa", precio: 8000, cantidad: 2 }], total: 60000 },
+  { _id: "PD005", cliente: { id: "C04", nombre: "Camilo Torres" }, restaurante: { id: "R07", nombre: "Bandeja Paisa Doña Rosa", ciudad: "Medellín" }, fecha: new Date("2026-10-03T12:40:00-05:00"), estado: "entregado", metodo_pago: "efectivo", items: [{ producto_id: "P16", nombre: "Bandeja paisa", precio: 34000, cantidad: 2 }, { producto_id: "P17", nombre: "Arepa con hogao", precio: 8000, cantidad: 1 }], total: 76000 },
+  { _id: "PD006", cliente: { id: "C05", nombre: "Mariana López" }, restaurante: { id: "R06", nombre: "Verde Vivo", ciudad: "Medellín" }, fecha: new Date("2026-10-04T19:00:00-05:00"), estado: "entregado", metodo_pago: "tarjeta", items: [{ producto_id: "P14", nombre: "Bowl de quinua", precio: 26000, cantidad: 1 }, { producto_id: "P15", nombre: "Hamburguesa de lentejas", precio: 24000, cantidad: 1 }], total: 50000 },
+  { _id: "PD007", cliente: { id: "C06", nombre: "Santiago Pérez" }, restaurante: { id: "R09", nombre: "Brasa Caribe", ciudad: "Barranquilla" }, fecha: new Date("2026-10-05T21:15:00-05:00"), estado: "entregado", metodo_pago: "tarjeta", items: [{ producto_id: "P20", nombre: "Picada para dos", precio: 58000, cantidad: 1 }], total: 58000 },
+  { _id: "PD008", cliente: { id: "C07", nombre: "Daniela Martínez" }, restaurante: { id: "R10", nombre: "Mar y Coco", ciudad: "Barranquilla" }, fecha: new Date("2026-10-05T13:30:00-05:00"), estado: "entregado", metodo_pago: "nequi", items: [{ producto_id: "P22", nombre: "Cazuela de mariscos", precio: 52000, cantidad: 1 }, { producto_id: "P24", nombre: "Limonada de coco", precio: 9000, cantidad: 2 }], total: 70000 },
+  { _id: "PD009", cliente: { id: "C01", nombre: "Laura Gómez" }, restaurante: { id: "R05", nombre: "Ajiaco & Co", ciudad: "Bogotá" }, fecha: new Date("2026-10-06T12:20:00-05:00"), estado: "entregado", metodo_pago: "tarjeta", items: [{ producto_id: "P12", nombre: "Ajiaco santafereño", precio: 28000, cantidad: 1 }, { producto_id: "P13", nombre: "Chocolate con queso", precio: 9000, cantidad: 1 }], total: 37000 },
+  { _id: "PD010", cliente: { id: "C08", nombre: "Julián Castro" }, restaurante: { id: "R02", nombre: "Sushi Nikko", ciudad: "Bogotá" }, fecha: new Date("2026-10-07T20:45:00-05:00"), estado: "entregado", metodo_pago: "tarjeta", items: [{ producto_id: "P05", nombre: "Ramen tonkotsu", precio: 36000, cantidad: 2 }], total: 72000 },
+  { _id: "PD011", cliente: { id: "C02", nombre: "Andrés Rojas" }, restaurante: { id: "R03", nombre: "Pizzería Napoli", ciudad: "Bogotá" }, fecha: new Date("2026-10-08T19:50:00-05:00"), estado: "cancelado", metodo_pago: "efectivo", items: [{ producto_id: "P07", nombre: "Pizza hawaiana mediana", precio: 32000, cantidad: 2 }], total: 64000 },
+  { _id: "PD012", cliente: { id: "C04", nombre: "Camilo Torres" }, restaurante: { id: "R08", nombre: "Taco Loco", ciudad: "Medellín" }, fecha: new Date("2026-10-09T20:00:00-05:00"), estado: "entregado", metodo_pago: "nequi", items: [{ producto_id: "P18", nombre: "Tacos al pastor x3", precio: 21000, cantidad: 2 }, { producto_id: "P19", nombre: "Burrito de pollo", precio: 25000, cantidad: 1 }], total: 67000 },
+  { _id: "PD013", cliente: { id: "C06", nombre: "Santiago Pérez" }, restaurante: { id: "R10", nombre: "Mar y Coco", ciudad: "Barranquilla" }, fecha: new Date("2026-10-10T13:10:00-05:00"), estado: "entregado", metodo_pago: "efectivo", items: [{ producto_id: "P23", nombre: "Arroz con coco y pescado", precio: 39000, cantidad: 2 }], total: 78000 },
+  { _id: "PD014", cliente: { id: "C03", nombre: "Valentina Ríos" }, restaurante: { id: "R01", nombre: "Arepas La 19", ciudad: "Bogotá" }, fecha: new Date("2026-10-11T09:00:00-05:00"), estado: "entregado", metodo_pago: "nequi", items: [{ producto_id: "P02", nombre: "Arepa rellena de carne", precio: 14000, cantidad: 1 }, { producto_id: "P03", nombre: "Jugo de lulo", precio: 6000, cantidad: 2 }], total: 26000 },
+  { _id: "PD015", cliente: { id: "C08", nombre: "Julián Castro" }, restaurante: { id: "R04", nombre: "Burger Norte", ciudad: "Bogotá" }, fecha: new Date("2026-10-12T18:30:00-05:00"), estado: "en_camino", metodo_pago: "tarjeta", items: [{ producto_id: "P10", nombre: "Hamburguesa clásica", precio: 22000, cantidad: 1 }, { producto_id: "P11", nombre: "Papas a la francesa", precio: 8000, cantidad: 1 }], total: 30000 },
+  { _id: "PD016", cliente: { id: "C05", nombre: "Mariana López" }, restaurante: { id: "R07", nombre: "Bandeja Paisa Doña Rosa", ciudad: "Medellín" }, fecha: new Date("2026-10-12T13:00:00-05:00"), estado: "pendiente", metodo_pago: "efectivo", items: [{ producto_id: "P16", nombre: "Bandeja paisa", precio: 34000, cantidad: 1 }], total: 34000 },
+  { _id: "PD017", cliente: { id: "C01", nombre: "Laura Gómez" }, restaurante: { id: "R02", nombre: "Sushi Nikko", ciudad: "Bogotá" }, fecha: new Date("2026-10-13T20:20:00-05:00"), estado: "en_camino", metodo_pago: "tarjeta", items: [{ producto_id: "P04", nombre: "Combo Sake", precio: 41000, cantidad: 2 }], total: 82000 },
+  { _id: "PD018", cliente: { id: "C07", nombre: "Daniela Martínez" }, restaurante: { id: "R09", nombre: "Brasa Caribe", ciudad: "Barranquilla" }, fecha: new Date("2026-10-13T21:00:00-05:00"), estado: "pendiente", metodo_pago: "tarjeta", items: [{ producto_id: "P21", nombre: "Costillas BBQ", precio: 45000, cantidad: 1 }, { producto_id: "P20", nombre: "Picada para dos", precio: 58000, cantidad: 1 }], total: 103000 },
+  { _id: "PD019", cliente: { id: "C02", nombre: "Andrés Rojas" }, restaurante: { id: "R05", nombre: "Ajiaco & Co", ciudad: "Bogotá" }, fecha: new Date("2026-10-14T12:45:00-05:00"), estado: "entregado", metodo_pago: "tarjeta", items: [{ producto_id: "P12", nombre: "Ajiaco santafereño", precio: 28000, cantidad: 2 }], total: 56000 },
+  { _id: "PD020", cliente: { id: "C04", nombre: "Camilo Torres" }, restaurante: { id: "R06", nombre: "Verde Vivo", ciudad: "Medellín" }, fecha: new Date("2026-10-14T19:10:00-05:00"), estado: "cancelado", metodo_pago: "nequi", items: [{ producto_id: "P15", nombre: "Hamburguesa de lentejas", precio: 24000, cantidad: 2 }], total: 48000 }
+]);
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 'PD001',
+    '1': 'PD002',
+    '2': 'PD003',
+    '3': 'PD004',
+    '4': 'PD005',
+    '5': 'PD006',
+    '6': 'PD007',
+    '7': 'PD008',
+    '8': 'PD009',
+    '9': 'PD010',
+    '10': 'PD011',
+    '11': 'PD012',
+    '12': 'PD013',
+    '13': 'PD014',
+    '14': 'PD015',
+    '15': 'PD016',
+    '16': 'PD017',
+    '17': 'PD018',
+    '18': 'PD019',
+    '19': 'PD020'
+  }
+}
+print("Restaurantes: " + db.restaurantes.countDocuments());
+Restaurantes: 10
+print("Clientes: " + db.clientes.countDocuments());
+Clientes: 8
+print("Productos: " + db.productos.countDocuments());
+Productos: 24
+print("Pedidos: " + db.pedidos.countDocuments());
+Pedidos: 20
+// A1
+use("saborya")
+db
+db.getCollectionNames()
+[ 'productos', 'pedidos', 'clientes', 'restaurantes' ]
+// A2
+db.restaurantes.countDocuments()
+db.clientes.countDocuments()
+db.productos.countDocuments()
+db.pedidos.countDocuments()
+20
+// A2
+db.restaurantes.countDocuments()
+10
+// A2
+db.clientes.countDocuments()
+8
+// A2
+
+db.productos.countDocuments()
+24
+// A2
+
+db.pedidos.countDocuments()
+20
+// A3
+db.restaurantes.insertOne({
+  _id: "R11",
+  nombre: "Café Arriero",
+  categoria: "Cafetería",
+  ciudad: "Medellín",
+  barrio: "Laureles",
+  calificacion: 4.5,
+  domicilio: true,
+  ubicacion: { type: "Point", coordinates: [-75.5925, 6.2442] },
+  etiquetas: ["café", "postres"]
+})
+{
+  acknowledged: true,
+  insertedId: 'R11'
+}
+// A4 (una sola operación)
+db.productos.insertMany([
+  { _id: "P25", restaurante_id: "R11", nombre: "Tinto campesino",
+    tipo: "bebida", precio: 3500, stock: 100, disponible: true, volumen_ml: 200 },
+  { _id: "P26", restaurante_id: "R11", nombre: "Torta de zanahoria",
+    tipo: "postre", precio: 9000, stock: 20, disponible: true }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 'P25',
+    '1': 'P26'
+  }
+}
+// A5
+db.restaurantes.find({ ciudad: "Medellín" })
+db.productos.countDocuments({ restaurante_id: "R11" })
+2
+//B1. FECHAS Y PRECIOS CON TYPE 
+db.pedidos.countDocument({fecha: {$type: "date"}})
+TypeError: db.pedidos.countDocument is not a function
+db.pedidos.countDocuments({ fecha: { $type: "date" } })
+20
+db.pedidos.countDocuments({fecha:{$not:{$type:"date"}}})
+0
+db.productos.countDocuments({precio: {$type: "string"}})
+0
+//Guardaria las reseñas aparte, en una colección propia de cliente solo tomaria el id, tal vez el nombre, pero prefiero no hacerlo ya que el cliente se puede sentir más tranquilo
+//B3 coleccion reseñas
+db.createCollection("reseñas", {})
+{ ok: 1 }
+db.reseñas.drop();
+true
+db.createCollection("resenas",{
+  validador:{
+    $jsonSchema:{
+      bsonType: "object",
+      required: ["restaurante_id", "cliente", "calificacion", "texto", "fecha"],
+      properties:{
+        restaurante_id: {bsonType: "string"},
+      cliente:{
+        bsonType: "object",
+        required: ["id", "nombre"],
+        properties:{
+        id:{ bsonType: "string"},
+        nombre: {bsonType: "string"}
+        }
+      },
+      }
+    }
+  }
+})
+MongoServerError[IDLUnknownField]: BSON field 'create.validador' is an unknown field.
+db.createCollection("resenas",{
+  validador:{
+    $jsonSchema:{
+      bsonType: "object",
+      required: ["restaurante_id", "cliente", "calificacion", "texto", "fecha"],
+      properties:{
+        restaurante_id: {bsonType: "string"},
+      cliente:{
+        bsonType: "object",
+        required: ["id", "nombre"],
+        properties:{
+        id:{ bsonType: "string"},
+        nombre: {bsonType: "string"}
+        }
+      },
+       calificacion: { bsonType: "int", minimum: 1, maximum: 5 },
+        texto: { bsonType: "string", minLength: 5 },
+        fecha: { bsonType: "date" },
+        fotos: { bsonType: "array", maxItems: 4, items: { bsonType: "string" } } 
+      }
+    }
+  }
+})
+MongoServerError[IDLUnknownField]: BSON field 'create.validador' is an unknown field.
+db.createCollection("resenas", {
+  validator: {
+    $jsonSchema: {
+      bsonType: "object",
+      required: ["restaurante_id", "cliente", "calificacion", "texto", "fecha"],
+      properties: {
+        restaurante_id: { bsonType: "string" },
+        cliente: {
+          bsonType: "object",
+          required: ["id", "nombre"],
+          properties: {
+            id: { bsonType: "string" },
+            nombre: { bsonType: "string" }
+          }
+        },
+        calificacion: { bsonType: "int", minimum: 1, maximum: 5 },
+        texto: { bsonType: "string", minLength: 5 },
+        fecha: { bsonType: "date" },
+        fotos: { bsonType: "array", maxItems: 4, items: { bsonType: "string" } }
+      }
+    }
+  }
+})
+{ ok: 1 }
+//B4 4 reseñas en una sola operacion 
+db.resenas.insertMany([
+  { restaurante_id: "R02", cliente: { id: "C01", nombre: "Laura Gómez" }, calificacion: 5,
+    texto: "El ramen llegó caliente y bien empacado", fecha: new Date("2026-10-15T20:10:00-05:00") },
+  { restaurante_id: "R02", cliente: { id: "C08", nombre: "Julián Castro" }, calificacion: 4,
+    texto: "Buen sushi, pero tardó 50 minutos", fecha: new Date("2026-10-16T21:30:00-05:00") },
+  { restaurante_id: "R10", cliente: { id: "C07", nombre: "Daniela Martínez" }, calificacion: 5,
+    texto: "La cazuela es abundante", fecha: new Date("2026-10-17T13:45:00-05:00"),
+    fotos: ["https://cdn.saborya.co/r/301.jpg", "https://cdn.saborya.co/r/302.jpg"] },
+  { restaurante_id: "R04", cliente: { id: "C03", nombre: "Valentina Ríos" }, calificacion: 2,
+    texto: "Las papas llegaron frías", fecha: new Date("2026-10-18T19:05:00-05:00") }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6aeb37f20d90b97e93547677'),
+    '1': ObjectId('6aeb37f20d90b97e93547678'),
+    '2': ObjectId('6aeb37f20d90b97e93547679'),
+    '3': ObjectId('6aeb37f20d90b97e9354767a')
+  }
+}
+// B5 Reseña invalida
+db.resenas.insertOne({
+  restaurante_id: "R01", cliente: { id: "C02", nombre: "Andrés Rojas" }, calificacion: 6,
+  texto: "Muy buena la arepa", fecha: new Date("2026-10-19T12:00:00-05:00")
+})
+MongoServerError: Document failed validation
+//B6. Reseñas de Laura Gómez y reseñas con al menos una foto
+db.resenas.find({ "cliente.id": "C01" })
+{
+  _id: ObjectId('6aeb37f20d90b97e93547677'),
+  restaurante_id: 'R02',
+  cliente: {
+    id: 'C01',
+    nombre: 'Laura Gómez'
+  },
+  calificacion: 5,
+  texto: 'El ramen llegó caliente y bien empacado',
+  fecha: 2026-10-16T01:10:00.000Z
+}
+db.resenas.find({ "fotos.0": { $exists: true } })
+{
+  _id: ObjectId('6aeb37f20d90b97e93547679'),
+  restaurante_id: 'R10',
+  cliente: {
+    id: 'C07',
+    nombre: 'Daniela Martínez'
+  },
+  calificacion: 5,
+  texto: 'La cazuela es abundante',
+  fecha: 2026-10-17T18:45:00.000Z,
+  fotos: [
+    'https://cdn.saborya.co/r/301.jpg',
+    'https://cdn.saborya.co/r/302.jpg'
+  ]
+}
+// B7. Denormalización: promedio y total de R02 = (5 + 4) / 2 = 4.5 con 2 reseñas
+db.restaurantes.updateOne(
+  { _id: "R02" },
+  { $set: { resumen_resenas: { promedio: 4.5, total: 2 } } }
+)
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+// B8. Restaurantes distintos con reseñas
+db.resenas.distinct("restaurante_id")
+[ 'R02', 'R04', 'R10' ]
+// C1. Platos disponibles con stock < 20, de menor a mayor stock
+db.productos.find(
+  { tipo: "plato", disponible: true, stock: { $lt: 20 } },
+  { nombre: 1, stock: 1, _id: 0 }
+).sort({ stock: 1 })
+{
+  nombre: 'Cazuela de mariscos',
+  stock: 10
+}
+{
+  nombre: 'Picada para dos',
+  stock: 12
+}
+{
+  nombre: 'Arroz con coco y pescado',
+  stock: 14
+}
+{
+  nombre: 'Combo Sake',
+  stock: 15
+}
+{
+  nombre: 'Costillas BBQ',
+  stock: 15
+}
+{
+  nombre: 'Hamburguesa de lentejas',
+  stock: 18
+}
+// C2. Total entre 50.000 y 80.000, pagados en efectivo o nequi
+db.pedidos.find(
+  { total: { $gte: 50000, $lte: 80000 }, metodo_pago: { $in: ["efectivo", "nequi"] } },
+  { total: 1, metodo_pago: 1, _id: 0 }
+)
+{
+  metodo_pago: 'nequi',
+  total: 60000
+}
+{
+  metodo_pago: 'efectivo',
+  total: 76000
+}
+{
+  metodo_pago: 'nequi',
+  total: 70000
+}
+{
+  metodo_pago: 'efectivo',
+  total: 64000
+}
+{
+  metodo_pago: 'nequi',
+  total: 67000
+}
+{
+  metodo_pago: 'efectivo',
+  total: 78000
+}
+// C3. Top 3 de Bogotá por calificación
+db.restaurantes.find(
+  { ciudad: "Bogotá" },
+  { nombre: 1, calificacion: 1, _id: 0 }
+).sort({ calificacion: -1 }).limit(3)
+{
+  nombre: 'Sushi Nikko',
+  calificacion: 4.8
+}
+{
+  nombre: 'Arepas La 19',
+  calificacion: 4.6
+}
+{
+  nombre: 'Ajiaco & Co',
+  calificacion: 4.5
+}
+// C4. Clientes de Bogotá con más de 100 puntos
+db.clientes.find(
+  { ciudad: "Bogotá", puntos: { $gt: 100 } },
+  { nombre: 1, ciudad: 1, puntos: 1, _id: 0 }
+)
+{
+  nombre: 'Laura Gómez',
+  ciudad: 'Bogotá',
+  puntos: 120
+}
+{
+  nombre: 'Andrés Rojas',
+  ciudad: 'Bogotá',
+  puntos: 340
+}
+{
+  nombre: 'Julián Castro',
+  ciudad: 'Bogotá',
+  puntos: 600
+}
+// C5. Pedidos del 12 al 14 de oct (hora Colombia) no entregados
+db.pedidos.find(
+  {
+    fecha: {
+      $gte: new Date("2026-10-12T00:00:00-05:00"),
+      $lt:  new Date("2026-10-15T00:00:00-05:00")
+    },
+    estado: { $ne: "entregado" }
+  },
+  { estado: 1, fecha: 1 }
+)
+{
+  _id: 'PD015',
+  fecha: 2026-10-12T23:30:00.000Z,
+  estado: 'en_camino'
+}
+{
+  _id: 'PD016',
+  fecha: 2026-10-12T18:00:00.000Z,
+  estado: 'pendiente'
+}
+{
+  _id: 'PD017',
+  fecha: 2026-10-14T01:20:00.000Z,
+  estado: 'en_camino'
+}
+{
+  _id: 'PD018',
+  fecha: 2026-10-14T02:00:00.000Z,
+  estado: 'pendiente'
+}
+{
+  _id: 'PD020',
+  fecha: 2026-10-15T00:10:00.000Z,
+  estado: 'cancelado'
+}
+// C6. Ítem con precio < 10.000 Y cantidad >= 2 en el MISMO ítem
+db.pedidos.find(
+  { items: { $elemMatch: { precio: { $lt: 10000 }, cantidad: { $gte: 2 } } } },
+  { items: 1 }
+)
+{
+  _id: 'PD001',
+  items: [
+    {
+      producto_id: 'P04',
+      nombre: 'Combo Sake',
+      precio: 41000,
+      cantidad: 1
+    },
+    {
+      producto_id: 'P06',
+      nombre: 'Té verde',
+      precio: 7000,
+      cantidad: 2
+    }
+  ]
+}
+{
+  _id: 'PD002',
+  items: [
+    {
+      producto_id: 'P01',
+      nombre: 'Arepa de choclo con queso',
+      precio: 9500,
+      cantidad: 2
+    },
+    {
+      producto_id: 'P03',
+      nombre: 'Jugo de lulo',
+      precio: 6000,
+      cantidad: 1
+    }
+  ]
+}
+{
+  _id: 'PD004',
+  items: [
+    {
+      producto_id: 'P10',
+      nombre: 'Hamburguesa clásica',
+      precio: 22000,
+      cantidad: 2
+    },
+    {
+      producto_id: 'P11',
+      nombre: 'Papas a la francesa',
+      precio: 8000,
+      cantidad: 2
+    }
+  ]
+}
+{
+  _id: 'PD008',
+  items: [
+    {
+      producto_id: 'P22',
+      nombre: 'Cazuela de mariscos',
+      precio: 52000,
+      cantidad: 1
+    },
+    {
+      producto_id: 'P24',
+      nombre: 'Limonada de coco',
+      precio: 9000,
+      cantidad: 2
+    }
+  ]
+}
+{
+  _id: 'PD014',
+  items: [
+    {
+      producto_id: 'P02',
+      nombre: 'Arepa rellena de carne',
+      precio: 14000,
+      cantidad: 1
+    },
+    {
+      producto_id: 'P03',
+      nombre: 'Jugo de lulo',
+      precio: 6000,
+      cantidad: 2
+    }
+  ]
+}
+// C6 sin $elemMatch
+db.pedidos.find(
+  { "items.precio": { $lt: 10000 }, "items.cantidad": { $gte: 2 } },
+  { items: 1 }
+)
+{
+  _id: 'PD001',
+  items: [
+    {
+      producto_id: 'P04',
+      nombre: 'Combo Sake',
+      precio: 41000,
+      cantidad: 1
+    },
+    {
+      producto_id: 'P06',
+      nombre: 'Té verde',
+      precio: 7000,
+      cantidad: 2
+    }
+  ]
+}
+{
+  _id: 'PD002',
+  items: [
+    {
+      producto_id: 'P01',
+      nombre: 'Arepa de choclo con queso',
+      precio: 9500,
+      cantidad: 2
+    },
+    {
+      producto_id: 'P03',
+      nombre: 'Jugo de lulo',
+      precio: 6000,
+      cantidad: 1
+    }
+  ]
+}
+{
+  _id: 'PD004',
+  items: [
+    {
+      producto_id: 'P10',
+      nombre: 'Hamburguesa clásica',
+      precio: 22000,
+      cantidad: 2
+    },
+    {
+      producto_id: 'P11',
+      nombre: 'Papas a la francesa',
+      precio: 8000,
+      cantidad: 2
+    }
+  ]
+}
+{
+  _id: 'PD005',
+  items: [
+    {
+      producto_id: 'P16',
+      nombre: 'Bandeja paisa',
+      precio: 34000,
+      cantidad: 2
+    },
+    {
+      producto_id: 'P17',
+      nombre: 'Arepa con hogao',
+      precio: 8000,
+      cantidad: 1
+    }
+  ]
+}
+{
+  _id: 'PD008',
+  items: [
+    {
+      producto_id: 'P22',
+      nombre: 'Cazuela de mariscos',
+      precio: 52000,
+      cantidad: 1
+    },
+    {
+      producto_id: 'P24',
+      nombre: 'Limonada de coco',
+      precio: 9000,
+      cantidad: 2
+    }
+  ]
+}
+{
+  _id: 'PD014',
+  items: [
+    {
+      producto_id: 'P02',
+      nombre: 'Arepa rellena de carne',
+      precio: 14000,
+      cantidad: 1
+    },
+    {
+      producto_id: 'P03',
+      nombre: 'Jugo de lulo',
+      precio: 6000,
+      cantidad: 2
+    }
+  ]
+}
+// C7. Catálogo del más caro al más barato, página 2 (6 por página)
+db.productos.find(
+  {},
+  { nombre: 1, precio: 1 }
+).sort({ precio: -1, _id: 1 }).skip(6).limit(6)
+{
+  _id: 'P05',
+  nombre: 'Ramen tonkotsu',
+  precio: 36000
+}
+{
+  _id: 'P16',
+  nombre: 'Bandeja paisa',
+  precio: 34000
+}
+{
+  _id: 'P07',
+  nombre: 'Pizza hawaiana mediana',
+  precio: 32000
+}
+{
+  _id: 'P09',
+  nombre: 'Lasaña boloñesa',
+  precio: 29000
+}
+{
+  _id: 'P12',
+  nombre: 'Ajiaco santafereño',
+  precio: 28000
+}
+{
+  _id: 'P14',
+  nombre: 'Bowl de quinua',
+  precio: 26000
+}
+// C8. Restaurantes con el campo horario o menu_vegano
+db.restaurantes.find(
+  { $or: [{ horario: { $exists: true } }, { menu_vegano: { $exists: true } }] },
+  { nombre: 1, _id: 0 }
+)
