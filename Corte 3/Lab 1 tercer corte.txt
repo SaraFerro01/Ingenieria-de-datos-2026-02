@@ -837,3 +837,43 @@ db.restaurantes.find(
   { $or: [{ horario: { $exists: true } }, { menu_vegano: { $exists: true } }] },
   { nombre: 1, _id: 0 }
 )
+
+//D1 +1000 r07
+db.productos.updateMany(
+{restaurante_id: "R07", tipo: "plato"},
+{ $inc:{ precio:1000}})
+
+//D3 agregar japonesa a c03
+
+{_id: "C03"}, {$addToSet:{ preferencias: "japonesa}})
+
+//D2 
+db.pedidos.updateOne(
+  { _id: "PD018", estado: "pendiente" }, { $set: { estado: "en_camino" } }
+
+//D4 
+db.clientes.updateOne(
+  { email: "natalia.suarez@example.com" },
+  { $setOnInsert: { _id: "C09", nombre: "Natalia Suárez", ciudad: "Medellín", puntos: 0, direcciones: [] } },{ upsert: true }
+
+//D5 
+db.productos.updateOne(
+  { _id: "P06" },  { $unset: { volumen_ml: "" } }) 
+
+//D6
+db.resenas.countDocuments({ calificacion: { $lt: 3 } })
+
+db.resenas.deleteMany({ calificacion: { $lt: 3 } })
+
+//D7
+db.pedidos.countDocuments({ estado: "cancelado", "restaurante.ciudad": "Medellín" })
+
+db.pedidos.deleteMany({ estado: "cancelado", "restaurante.ciudad": "Medellín" })
+
+//D8
+
+print("Restaurantes: " + db.restaurantes.countDocuments())
+print("Clientes: " + db.clientes.countDocuments())
+print("Productos: " + db.productos.countDocuments())
+print("Pedidos: " + db.pedidos.countDocuments())
+print("Resenas: " + db.resenas.countDocuments())
