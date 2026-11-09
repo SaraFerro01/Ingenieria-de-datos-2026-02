@@ -1,181 +1,41 @@
-// Conexión o creación de la base de datos
-use colegio_mzo;
-
-// Limpieza previa de colecciones si existen
-db.jornada.drop();
-db.nivel.drop();
-db.curso.drop();
-db.bloque.drop();
-db.acudiente.drop();
-db.estudiante.drop();
-db.usuario.drop();
-db.citacion.drop();
-db.asistencia.drop();
-db.auditoria_asistencia.drop();
-
-// ==========================================
-// 01. INSERTS DE DATOS DE PRUEBA
-// ==========================================
-
-// Jornadas
-db.jornada.insertMany([
-  { _id: ObjectId("64a100000000000000000001"), nombre: "Mañana", horainicioJor: "06:30:00", horafinJor: "12:30:00" },
-  { _id: ObjectId("64a100000000000000000002"), nombre: "Tarde", horainicioJor: "12:30:00", horafinJor: "18:30:00" }
-]);
-
-// Niveles
-db.nivel.insertMany([
-  { _id: ObjectId("64a200000000000000000001"), nombre: "Primaria", cantidadbloques: 5 },
-  { _id: ObjectId("64a200000000000000000002"), nombre: "Bachillerato", cantidadbloques: 4 }
-]);
-
-// Cursos (Ejemplo representativo)
-db.curso.insertMany([
-  { _id: ObjectId("64a300000000000000000001"), nombre: "101", grado: 1, aniolectivo: 2026, activo: true, idnivel: ObjectId("64a200000000000000000001"), idjornada: ObjectId("64a100000000000000000001") },
-  { _id: ObjectId("64a300000000000000000009"), nombre: "501", grado: 5, aniolectivo: 2026, activo: true, idnivel: ObjectId("64a200000000000000000001"), idjornada: ObjectId("64a100000000000000000001") }
-]);
-
-// Acudientes (Ejemplo)
-db.acudiente.insertMany([
-  { _id: ObjectId("64a400000000000000000001"), tipodocumentoAcu: "CC", numerodocumentoAcu: "52000000", nombres: "Gabriela", apellidos: "Ortiz Palacios", parentesco: "Madre", telefono: "3269236009", correo: "gabriela.ortiz1@correo.com", direccion: "Carrera 58 Sur # 79-80, Kennedy" }
-]);
-
-// Estudiantes
-db.estudiante.insertMany([
-  { _id: ObjectId("64a500000000000000000001"), tipodocumentoEst: "RC", numerodocumentoEst: "1010000000", nombres: "Sebastián", apellidos: "Ortiz Rojas", fechanacimiento: new ISODate("2019-05-18"), activo: true, idcurso: ObjectId("64a300000000000000000001"), idacudiente: ObjectId("64a400000000000000000001") }
-]);
-
-// Usuarios
-db.usuario.insertMany([
-  { _id: ObjectId("64a600000000000000000001"), numerodocumentoUsu: "79000000", nombres: "Luis", apellidos: "Moreno García", correo: "luis.moreno1@colegiomzo.edu.co", contrasena: "hash_sha256", rol: "COORDINADOR", activo: true },
-  { _id: ObjectId("64a600000000000000000006"), numerodocumentoUsu: "79050035", nombres: "Ana María", apellidos: "González Vargas", correo: "ana.gonzalez6@colegiomzo.edu.co", contrasena: "hash_sha256", rol: "MAESTRO", activo: true }
-]);
-
-// Asistencia
-db.asistencia.insertMany([
-  {
-    fecha: new ISODate("2026-08-03T00:00:00Z"),
-    categoria: "ASISTIO",
-    justificada: false,
-    justificacion: "NINGUNA",
-    fecha_hora_registro: new ISODate("2026-08-03T06:47:00Z"),
-    idestudiante: ObjectId("64a500000000000000000001"),
-    idcurso: ObjectId("64a300000000000000000001"),
-    idbloque: ObjectId("64a200000000000000000001"),
-    idusuario: ObjectId("64a600000000000000000006"),
-    idcitacion: null
-  }
-]);
-
-// ==========================================
-// 02. CREACIÓN DE ÍNDICES (Restricciones UNIQUE y rendimiento)
-// ==========================================
-
-db.jornada.createIndex({ nombre: 1 }, { unique: true });
-db.nivel.createIndex({ nombre: 1 }, { unique: true });
-db.curso.createIndex({ nombre: 1, idjornada: 1, aniolectivo: 1 }, { unique: true });
-db.bloque.createIndex({ idnivel: 1, idjornada: 1, numero: 1 }, { unique: true });
-db.acudiente.createIndex({ numerodocumentoAcu: 1 }, { unique: true });
-db.estudiante.createIndex({ numerodocumentoEst: 1 }, { unique: true });
-db.usuario.createIndex({ numerodocumentoUsu: 1 }, { unique: true });
-db.usuario.createIndex({ correo: 1 }, { unique: true });
-
-// Evita duplicados exactos en asistencia (Equivalente a uq_asistencia)
-db.asistencia.createIndex({ fecha: 1, idestudiante: 1, idbloque: 1 }, { unique: true });
-db.asistencia.createIndex({ fecha: 1 });
-db.asistencia.createIndex({ categoria: 1 });
-db.auditoria_asistencia.createIndex({ fechahora: 1 });
-
-db.estudiante.aggregate([
-  { $match: { activo: true } },
-  {
-    $lookup: {
-      from: "curso",
-      localField: "idcurso",
-      foreignField: "_id",
-      as: "curso_info"
-    }
-  },
-  { $unwind: "$curso_info" },
-  {
-    $lookup: {
-      from: "nivel",
-      localField: "curso_info.idnivel",
-      foreignField: "_id",
-      as: "nivel_info"
-    }
-  },
-  { $unwind: "$nivel_info" },
-  {
-    $lookup: {
-      from: "jornada",
-      localField: "curso_info.idjornada",
-      foreignField: "_id",
-      as: "jornada_info"
-    }
-  },
-  { $unwind: "$jornada_info" },
-  {
-    $project: {
-      tipodocumentoEst: 1,
-      numerodocumentoEst: 1,
-      nombres: 1,
-      apellidos: 1,
-      curso: "$curso_info.nombre",
-      grado: "$curso_info.grado",
-      nivel: "$nivel_info.nombre",
-      jornada: "$jornada_info.nombre"
-    }
-  }
-]);
-
-db.asistencia.aggregate([
-  { 
-    $match: { 
-      categoria: "FALTO",
-      fecha: { $gte: ISODate("2026-08-01T00:00:00Z"), $lte: ISODate("2026-08-31T23:59:59Z") }
-    } 
-  },
-  {
-    $lookup: {
-      from: "curso",
-      localField: "idcurso",
-      foreignField: "_id",
-      as: "curso_info"
-    }
-  },
-  { $unwind: "$curso_info" },
-  {
-    $group: {
-      _id: "$idcurso",
-      curso: { $first: "$curso_info.nombre" },
-      inasistencias: { $sum: 1 }
-    }
-  },
-  { $sort: { inasistencias: -1 } }
-]);
-
-use colegio_mzo;
-
-// ==========================================
-// 1. JORNADA
-// ==========================================
+use("colegio_mzo")
+switched to db colegio_mzo
+db["colegio_mzo"].find()
+use colegio_mzo
+already on db colegio_mzo
+db.jornada.drop()
+db.nivel.drop()
+db.curso.drop()
+db.bloque.drop()
+db.acudiente.drop()
+db.estudiante.drop()
+db.usuario.drop()
+db.citacion.drop()
+db.asistencia.drop()
+db.auditoria_asistencia.drop()
+true
 db.jornada.insertMany([
   { _id: 1, nombre: 'Mañana', horainicioJor: '06:30:00', horafinJor: '12:30:00' },
   { _id: 2, nombre: 'Tarde', horainicioJor: '12:30:00', horafinJor: '18:30:00' }
 ]);
-
-// ==========================================
-// 2. NIVEL
-// ==========================================
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2
+  }
+}
 db.nivel.insertMany([
   { _id: 1, nombre: 'Primaria', cantidadbloques: 5 },
   { _id: 2, nombre: 'Bachillerato', cantidadbloques: 4 }
 ]);
-
-// ==========================================
-// 3. BLOQUE
-// ==========================================
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2
+  }
+}
 db.bloque.insertMany([
   { _id: 1, nombre: 'Bloque 1', numero: 1, horainicioBlo: '06:30:00', horafinBlo: '07:25:00', idnivel: 1, idjornada: 1 },
   { _id: 2, nombre: 'Bloque 2', numero: 2, horainicioBlo: '07:25:00', horafinBlo: '08:20:00', idnivel: 1, idjornada: 1 },
@@ -195,11 +55,30 @@ db.bloque.insertMany([
   { _id: 16, nombre: 'Bloque 2', numero: 2, horainicioBlo: '13:25:00', horafinBlo: '14:20:00', idnivel: 2, idjornada: 2 },
   { _id: 17, nombre: 'Bloque 3', numero: 3, horainicioBlo: '14:40:00', horafinBlo: '15:35:00', idnivel: 2, idjornada: 2 },
   { _id: 18, nombre: 'Bloque 4', numero: 4, horainicioBlo: '15:35:00', horafinBlo: '16:30:00', idnivel: 2, idjornada: 2 }
-]);
-
-// ==========================================
-// 4. CURSO
-// ==========================================
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2,
+    '2': 3,
+    '3': 4,
+    '4': 5,
+    '5': 6,
+    '6': 7,
+    '7': 8,
+    '8': 9,
+    '9': 10,
+    '10': 11,
+    '11': 12,
+    '12': 13,
+    '13': 14,
+    '14': 15,
+    '15': 16,
+    '16': 17,
+    '17': 18
+  }
+}
 db.curso.insertMany([
   { _id: 1, nombre: '101', grado: 1, aniolectivo: 2026, activo: true, idnivel: 1, idjornada: 1 },
   { _id: 2, nombre: '102', grado: 1, aniolectivo: 2026, activo: true, idnivel: 1, idjornada: 1 },
@@ -251,59 +130,311 @@ db.curso.insertMany([
   { _id: 48, nombre: '603', grado: 6, aniolectivo: 2026, activo: true, idnivel: 2, idjornada: 2 },
   { _id: 49, nombre: '703', grado: 7, aniolectivo: 2026, activo: true, idnivel: 2, idjornada: 2 },
   { _id: 50, nombre: '803', grado: 8, aniolectivo: 2026, activo: true, idnivel: 2, idjornada: 2 }
-]);
-
-// ==========================================
-// 5. ACUDIENTE
-// ==========================================
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2,
+    '2': 3,
+    '3': 4,
+    '4': 5,
+    '5': 6,
+    '6': 7,
+    '7': 8,
+    '8': 9,
+    '9': 10,
+    '10': 11,
+    '11': 12,
+    '12': 13,
+    '13': 14,
+    '14': 15,
+    '15': 16,
+    '16': 17,
+    '17': 18,
+    '18': 19,
+    '19': 20,
+    '20': 21,
+    '21': 22,
+    '22': 23,
+    '23': 24,
+    '24': 25,
+    '25': 26,
+    '26': 27,
+    '27': 28,
+    '28': 29,
+    '29': 30,
+    '30': 31,
+    '31': 32,
+    '32': 33,
+    '33': 34,
+    '34': 35,
+    '35': 36,
+    '36': 37,
+    '37': 38,
+    '38': 39,
+    '39': 40,
+    '40': 41,
+    '41': 42,
+    '42': 43,
+    '43': 44,
+    '44': 45,
+    '45': 46,
+    '46': 47,
+    '47': 48,
+    '48': 49,
+    '49': 50
+  }
+}
 db.acudiente.insertMany([
   { _id: 1, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52000000', nombres: 'Gabriela', apellidos: 'Ortiz Palacios', parentesco: 'Madre', telefono: '3269236009', correo: 'gabriela.ortiz1@correo.com', direccion: 'Carrera 58 Sur # 79-80, Kennedy' },
   { _id: 2, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52013771', nombres: 'Samuel', apellidos: 'Vargas Sánchez', parentesco: 'Padre', telefono: '3109225646', correo: 'samuel.vargas2@correo.com', direccion: 'Calle 8 Sur # 69-13, Kennedy' },
   { _id: 3, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52027542', nombres: 'Diana', apellidos: 'Torres Ramírez', parentesco: 'Tía', telefono: '3216710873', correo: 'diana.torres3@correo.com', direccion: 'Diagonal 52 Sur # 72-96, Kennedy' },
   { _id: 4, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52041313', nombres: 'Yolanda', apellidos: 'Pérez Vargas', parentesco: 'Abuela', telefono: '3158735513', correo: null, direccion: 'Diagonal 2 Sur # 87-91, Kennedy' },
-  { _id: 5, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52055084', nombres: 'Mariana', apellidos: 'Mena Jiménez', parentesco: 'Hermana mayor', telefono: '3277679821', correo: 'mariana.mena5@correo.com', direccion: 'Calle 28 Sur # 76-97, Kennedy' }
-  // (Continúa con el resto de acudientes...)
-]);
-
-// ==========================================
-// 6. ESTUDIANTE
-// ==========================================
+  { _id: 5, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52055084', nombres: 'Mariana', apellidos: 'Mena Jiménez', parentesco: 'Hermana mayor', telefono: '3277679821', correo: 'mariana.mena5@correo.com', direccion: 'Calle 28 Sur # 76-97, Kennedy' },
+  { _id: 6, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52068855', nombres: 'Luis', apellidos: 'Asprilla Rojas', parentesco: 'Tutor legal', telefono: '3281425740', correo: 'luis.asprilla6@correo.com', direccion: null },
+  { _id: 7, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52082626', nombres: 'Manuela', apellidos: 'Cuesta Gómez', parentesco: 'Madre', telefono: '3018663770', correo: 'manuela.cuesta7@correo.com', direccion: 'Transversal 31 Sur # 64-62, Kennedy' },
+  { _id: 8, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52096397', nombres: 'Luz Marina', apellidos: 'Suárez Torres', parentesco: 'Tía', telefono: '3135938778', correo: 'luz.suarez8@correo.com', direccion: 'Transversal 52 Sur # 88-52, Kennedy' },
+  { _id: 9, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52110168', nombres: 'Miguel', apellidos: 'Gómez García', parentesco: 'Tutor legal', telefono: '3178829190', correo: 'miguel.gomez9@correo.com', direccion: 'Transversal 24 Sur # 89-26, Kennedy' },
+  { _id: 10, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52123939', nombres: 'Salomé', apellidos: 'Quintero Rojas', parentesco: 'Madre', telefono: '3185342466', correo: 'salome.quintero10@correo.com', direccion: 'Diagonal 21 Sur # 74-13, Kennedy' },
+  { _id: 11, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52137710', nombres: 'Martina', apellidos: 'Rojas Cuesta', parentesco: 'Hermana mayor', telefono: '3114264621', correo: null, direccion: 'Calle 42 Sur # 68-64, Kennedy' },
+  { _id: 12, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52151481', nombres: 'Wilson', apellidos: 'García Vargas', parentesco: 'Padre', telefono: '3214335171', correo: 'wilson.garcia12@correo.com', direccion: 'Calle 1 Sur # 74-75, Kennedy' },
+  { _id: 13, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52165252', nombres: 'Camila', apellidos: 'Murillo Suárez', parentesco: 'Tía', telefono: '3299254204', correo: 'camila.murillo13@correo.com', direccion: 'Diagonal 10 Sur # 60-41, Kennedy' },
+  { _id: 14, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52179023', nombres: 'Manuela', apellidos: 'Suárez Sánchez', parentesco: 'Hermana mayor', telefono: '3242416554', correo: 'manuela.suarez14@correo.com', direccion: 'Carrera 39 Sur # 88-89, Kennedy' },
+  { _id: 15, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52192794', nombres: 'Martina', apellidos: 'Perea García', parentesco: 'Tía', telefono: '3237308337', correo: 'martina.perea15@correo.com', direccion: 'Transversal 25 Sur # 85-20, Kennedy' },
+  { _id: 16, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52206565', nombres: 'Ana María', apellidos: 'Torres Mena', parentesco: 'Madre', telefono: '3101429199', correo: 'ana.torres16@correo.com', direccion: 'Calle 54 Sur # 71-83, Kennedy' },
+  { _id: 17, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52220336', nombres: 'Carolina', apellidos: 'Rentería Pérez', parentesco: 'Hermana mayor', telefono: '3119347833', correo: 'carolina.renteria17@correo.com', direccion: null },
+  { _id: 18, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52234107', nombres: 'Samuel', apellidos: 'Mosquera Quintero', parentesco: 'Abuelo', telefono: '3196644171', correo: null, direccion: 'Carrera 38 Sur # 76-27, Kennedy' },
+  { _id: 19, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52247878', nombres: 'Sandra', apellidos: 'Rentería Córdoba', parentesco: 'Madre', telefono: '3001808451', correo: 'sandra.renteria19@correo.com', direccion: 'Transversal 3 Sur # 66-83, Kennedy' },
+  { _id: 20, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52261649', nombres: 'Diana', apellidos: 'Castro Córdoba', parentesco: 'Madre', telefono: '3223690909', correo: 'diana.castro20@correo.com', direccion: 'Carrera 42 Sur # 76-28, Kennedy' },
+  { _id: 21, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52275420', nombres: 'Martina', apellidos: 'Torres Ramírez', parentesco: 'Hermana mayor', telefono: '3126772469', correo: 'martina.torres21@correo.com', direccion: 'Transversal 56 Sur # 62-50, Kennedy' },
+  { _id: 22, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52289191', nombres: 'Isabella', apellidos: 'Castro Murillo', parentesco: 'Hermana mayor', telefono: '3278458863', correo: 'isabella.castro22@correo.com', direccion: 'Diagonal 30 Sur # 65-42, Kennedy' },
+  { _id: 23, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52302962', nombres: 'Gabriela', apellidos: 'Quintero Ramírez', parentesco: 'Madre', telefono: '3157845145', correo: 'gabriela.quintero23@correo.com', direccion: 'Carrera 15 Sur # 60-12, Kennedy' },
+  { _id: 24, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52316733', nombres: 'Martina', apellidos: 'Rodríguez Moreno', parentesco: 'Abuela', telefono: '3232840351', correo: 'martina.rodriguez24@correo.com', direccion: 'Diagonal 36 Sur # 81-74, Kennedy' },
+  { _id: 25, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52330504', nombres: 'Luz Marina', apellidos: 'Suárez Murillo', parentesco: 'Abuela', telefono: '3222702144', correo: null, direccion: 'Diagonal 37 Sur # 68-86, Kennedy' },
+  { _id: 26, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52344275', nombres: 'Diego', apellidos: 'Rojas López', parentesco: 'Padre', telefono: '3019499785', correo: 'diego.rojas26@correo.com', direccion: 'Calle 49 Sur # 71-93, Kennedy' },
+  { _id: 27, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52358046', nombres: 'Paula', apellidos: 'Pérez Perea', parentesco: 'Tía', telefono: '3065312449', correo: 'paula.perez27@correo.com', direccion: 'Carrera 17 Sur # 68-9, Kennedy' },
+  { _id: 28, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52371817', nombres: 'Natalia', apellidos: 'Gómez Martínez', parentesco: 'Abuela', telefono: '3043063938', correo: 'natalia.gomez28@correo.com', direccion: null },
+  { _id: 29, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52385588', nombres: 'Valentina', apellidos: 'Díaz Murillo', parentesco: 'Hermana mayor', telefono: '3238762311', correo: 'valentina.diaz29@correo.com', direccion: 'Calle 60 Sur # 72-41, Kennedy' },
+  { _id: 30, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52399359', nombres: 'Ana María', apellidos: 'Rentería Moreno', parentesco: 'Tía', telefono: '3061397004', correo: 'ana.renteria30@correo.com', direccion: 'Transversal 19 Sur # 90-46, Kennedy' },
+  { _id: 31, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52413130', nombres: 'Carolina', apellidos: 'Pérez Valencia', parentesco: 'Madre', telefono: '3206745925', correo: 'carolina.perez31@correo.com', direccion: 'Diagonal 50 Sur # 73-41, Kennedy' },
+  { _id: 32, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52426901', nombres: 'Camila', apellidos: 'Valencia Martínez', parentesco: 'Abuela', telefono: '3256070765', correo: null, direccion: 'Calle 8 Sur # 61-17, Kennedy' },
+  { _id: 33, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52440672', nombres: 'Manuela', apellidos: 'Moreno Rojas', parentesco: 'Hermana mayor', telefono: '3233100642', correo: 'manuela.moreno33@correo.com', direccion: 'Transversal 16 Sur # 84-54, Kennedy' },
+  { _id: 34, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52454443', nombres: 'Natalia', apellidos: 'Rentería Córdoba', parentesco: 'Hermana mayor', telefono: '3005644462', correo: 'natalia.renteria34@correo.com', direccion: 'Diagonal 51 Sur # 64-30, Kennedy' },
+  { _id: 35, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52468214', nombres: 'Sofía', apellidos: 'Ramírez Díaz', parentesco: 'Abuela', telefono: '3085449700', correo: 'sofia.ramirez35@correo.com', direccion: 'Calle 54 Sur # 65-71, Kennedy' },
+  { _id: 36, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52481985', nombres: 'Gabriela', apellidos: 'Murillo Valencia', parentesco: 'Tía', telefono: '3238894436', correo: 'gabriela.murillo36@correo.com', direccion: 'Calle 43 Sur # 86-2, Kennedy' },
+  { _id: 37, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52495756', nombres: 'Sandra', apellidos: 'Rentería Ortiz', parentesco: 'Abuela', telefono: '3246766126', correo: 'sandra.renteria37@correo.com', direccion: 'Transversal 46 Sur # 71-30, Kennedy' },
+  { _id: 38, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52509527', nombres: 'Óscar', apellidos: 'Moreno Vargas', parentesco: 'Tutor legal', telefono: '3244152477', correo: 'oscar.moreno38@correo.com', direccion: 'Transversal 58 Sur # 85-87, Kennedy' },
+  { _id: 39, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52523298', nombres: 'Sofía', apellidos: 'García Castro', parentesco: 'Madre', telefono: '3187850588', correo: null, direccion: null },
+  { _id: 40, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52537069', nombres: 'Matías', apellidos: 'López González', parentesco: 'Tío', telefono: '3011307902', correo: 'matias.lopez40@correo.com', direccion: 'Diagonal 35 Sur # 83-34, Kennedy' },
+  { _id: 41, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52550840', nombres: 'Yolanda', apellidos: 'Jiménez Gómez', parentesco: 'Hermana mayor', telefono: '3229535601', correo: 'yolanda.jimenez41@correo.com', direccion: 'Transversal 35 Sur # 90-67, Kennedy' },
+  { _id: 42, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52564611', nombres: 'Manuela', apellidos: 'Valencia Torres', parentesco: 'Tía', telefono: '3233721443', correo: 'manuela.valencia42@correo.com', direccion: 'Diagonal 20 Sur # 61-95, Kennedy' },
+  { _id: 43, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52578382', nombres: 'Luis', apellidos: 'Suárez Pérez', parentesco: 'Tío', telefono: '3209053266', correo: 'luis.suarez43@correo.com', direccion: 'Carrera 25 Sur # 66-96, Kennedy' },
+  { _id: 44, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52592153', nombres: 'Óscar', apellidos: 'Quintero Murillo', parentesco: 'Abuelo', telefono: '3021476776', correo: 'oscar.quintero44@correo.com', direccion: 'Calle 12 Sur # 70-70, Kennedy' },
+  { _id: 45, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52605924', nombres: 'Santiago', apellidos: 'Rentería Mena', parentesco: 'Padre', telefono: '3083587483', correo: 'santiago.renteria45@correo.com', direccion: 'Diagonal 5 Sur # 71-39, Kennedy' },
+  { _id: 46, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52619695', nombres: 'Sandra', apellidos: 'García Martínez', parentesco: 'Tía', telefono: '3065405213', correo: null, direccion: 'Transversal 7 Sur # 87-94, Kennedy' },
+  { _id: 47, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52633466', nombres: 'Ana María', apellidos: 'Moreno Castro', parentesco: 'Hermana mayor', telefono: '3176790134', correo: 'ana.moreno47@correo.com', direccion: 'Calle 36 Sur # 76-32, Kennedy' },
+  { _id: 48, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52647237', nombres: 'Paula', apellidos: 'Quintero Castro', parentesco: 'Tía', telefono: '3058257766', correo: 'paula.quintero48@correo.com', direccion: 'Diagonal 49 Sur # 81-29, Kennedy' },
+  { _id: 49, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52661008', nombres: 'Carolina', apellidos: 'Díaz Perea', parentesco: 'Hermana mayor', telefono: '3136847641', correo: 'carolina.diaz49@correo.com', direccion: 'Transversal 21 Sur # 65-26, Kennedy' },
+  { _id: 50, tipodocumentoAcu: 'CC', numerodocumentoAcu: '52674779', nombres: 'Óscar', apellidos: 'Rojas Cuesta', parentesco: 'Tutor legal', telefono: '3028410022', correo: 'oscar.rojas50@correo.com', direccion: null }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': 1,
+    '1': 2,
+    '2': 3,
+    '3': 4,
+    '4': 5,
+    '5': 6,
+    '6': 7,
+    '7': 8,
+    '8': 9,
+    '9': 10,
+    '10': 11,
+    '11': 12,
+    '12': 13,
+    '13': 14,
+    '14': 15,
+    '15': 16,
+    '16': 17,
+    '17': 18,
+    '18': 19,
+    '19': 20,
+    '20': 21,
+    '21': 22,
+    '22': 23,
+    '23': 24,
+    '24': 25,
+    '25': 26,
+    '26': 27,
+    '27': 28,
+    '28': 29,
+    '29': 30,
+    '30': 31,
+    '31': 32,
+    '32': 33,
+    '33': 34,
+    '34': 35,
+    '35': 36,
+    '36': 37,
+    '37': 38,
+    '38': 39,
+    '39': 40,
+    '40': 41,
+    '41': 42,
+    '42': 43,
+    '43': 44,
+    '44': 45,
+    '45': 46,
+    '46': 47,
+    '47': 48,
+    '48': 49,
+    '49': 50
+  }
+}
 db.estudiante.insertMany([
   { _id: 1, tipodocumentoEst: 'RC', numerodocumentoEst: '1010000000', nombres: 'Sebastián', apellidos: 'Ortiz Rojas', fechanacimiento: new ISODate('2019-05-18'), activo: true, idcurso: 1, idacudiente: 1 },
   { _id: 2, tipodocumentoEst: 'RC', numerodocumentoEst: '1010007919', nombres: 'Isabella', apellidos: 'Vargas Díaz', fechanacimiento: new ISODate('2019-05-17'), activo: true, idcurso: 1, idacudiente: 2 },
   { _id: 3, tipodocumentoEst: 'RC', numerodocumentoEst: '1010015838', nombres: 'Julián', apellidos: 'Torres Ramírez', fechanacimiento: new ISODate('2019-03-16'), activo: true, idcurso: 1, idacudiente: 3 },
   { _id: 4, tipodocumentoEst: 'RC', numerodocumentoEst: '1010023757', nombres: 'David', apellidos: 'Pérez Sánchez', fechanacimiento: new ISODate('2019-06-19'), activo: true, idcurso: 1, idacudiente: 4 },
-  { _id: 5, tipodocumentoEst: 'RC', numerodocumentoEst: '1010031676', nombres: 'Jerónimo', apellidos: 'Mena Murillo', fechanacimiento: new ISODate('2019-03-05'), activo: true, idcurso: 1, idacudiente: 5 }
-  // (Continúa con el resto de estudiantes...)
-]);
+  { _id: 5, tipodocumentoEst: 'RC', numerodocumentoEst: '1010031676', nombres: 'Jerónimo', apellidos: 'Mena Murillo', fechanacimiento: new ISODate('2019-03-05'), activo: true, idcurso: 1, idacudiente: 5 },
+  { _id: 6, tipodocumentoEst: 'TI', numerodocumentoEst: '1010039595', nombres: 'Manuela', apellidos: 'Asprilla Vargas', fechanacimiento: new ISODate('2017-11-21'), activo: true, idcurso: 5, idacudiente: 6 },
+  { _id: 7, tipodocumentoEst: 'TI', numerodocumentoEst: '1010047514', nombres: 'Valentina', apellidos: 'Cuesta Suárez', fechanacimiento: new ISODate('2017-06-18'), activo: true, idcurso: 5, idacudiente: 7 },
+  { _id: 8, tipodocumentoEst: 'TI', numerodocumentoEst: '1010055433', nombres: 'Emiliano', apellidos: 'Suárez Martínez', fechanacimiento: new ISODate('2017-12-14'), activo: true, idcurso: 5, idacudiente: 8 },
+  { _id: 9, tipodocumentoEst: 'TI', numerodocumentoEst: '1010063352', nombres: 'Esteban', apellidos: 'Gómez Perea', fechanacimiento: new ISODate('2017-12-14'), activo: true, idcurso: 5, idacudiente: 9 },
+  { _id: 10, tipodocumentoEst: 'TI', numerodocumentoEst: '1010071271', nombres: 'Jerónimo', apellidos: 'Quintero Ortiz', fechanacimiento: new ISODate('2017-04-18'), activo: true, idcurso: 5, idacudiente: 10 },
+  { _id: 11, tipodocumentoEst: 'TI', numerodocumentoEst: '1010079190', nombres: 'Antonella', apellidos: 'Rojas Gómez', fechanacimiento: new ISODate('2015-07-24'), activo: true, idcurso: 9, idacudiente: 11 },
+  { _id: 12, tipodocumentoEst: 'TI', numerodocumentoEst: '1010087109', nombres: 'Juan', apellidos: 'García Ramírez', fechanacimiento: new ISODate('2015-10-14'), activo: true, idcurso: 9, idacudiente: 12 },
+  { _id: 13, tipodocumentoEst: 'TI', numerodocumentoEst: '1010095028', nombres: 'Sebastián', apellidos: 'Murillo Díaz', fechanacimiento: new ISODate('2015-10-24'), activo: true, idcurso: 9, idacudiente: 13 },
+  { _id: 14, tipodocumentoEst: 'TI', numerodocumentoEst: '1010102947', nombres: 'Camilo', apellidos: 'Suárez Cuesta', fechanacimiento: new ISODate('2015-09-01'), activo: true, idcurso: 9, idacudiente: 14 },
+  { _id: 15, tipodocumentoEst: 'TI', numerodocumentoEst: '1010110866', nombres: 'Esteban', apellidos: 'Perea Díaz', fechanacimiento: new ISODate('2015-01-07'), activo: true, idcurso: 9, idacudiente: 15 },
+  { _id: 16, tipodocumentoEst: 'TI', numerodocumentoEst: '1010118785', nombres: 'Valeria', apellidos: 'Torres Palacios', fechanacimiento: new ISODate('2014-03-03'), activo: true, idcurso: 11, idacudiente: 16 },
+  { _id: 17, tipodocumentoEst: 'TI', numerodocumentoEst: '1010126704', nombres: 'David', apellidos: 'Rentería Díaz', fechanacimiento: new ISODate('2014-01-10'), activo: true, idcurso: 11, idacudiente: 17 },
+  { _id: 18, tipodocumentoEst: 'TI', numerodocumentoEst: '1010134623', nombres: 'Julián', apellidos: 'Mosquera Ortiz', fechanacimiento: new ISODate('2014-05-22'), activo: false, idcurso: 11, idacudiente: 18 },
+  { _id: 19, tipodocumentoEst: 'TI', numerodocumentoEst: '1010142542', nombres: 'Felipe', apellidos: 'Rentería González', fechanacimiento: new ISODate('2014-10-12'), activo: true, idcurso: 11, idacudiente: 19 },
+  { _id: 20, tipodocumentoEst: 'TI', numerodocumentoEst: '1010150461', nombres: 'Jerónimo', apellidos: 'Castro Murillo', fechanacimiento: new ISODate('2014-01-06'), activo: true, idcurso: 11, idacudiente: 20 },
+  { _id: 21, tipodocumentoEst: 'TI', numerodocumentoEst: '1010158380', nombres: 'Sebastián', apellidos: 'Torres Díaz', fechanacimiento: new ISODate('2012-04-22'), activo: true, idcurso: 15, idacudiente: 21 },
+  { _id: 22, tipodocumentoEst: 'TI', numerodocumentoEst: '1010166299', nombres: 'Alejandro', apellidos: 'Castro Mosquera', fechanacimiento: new ISODate('2012-12-10'), activo: true, idcurso: 15, idacudiente: 22 },
+  { _id: 23, tipodocumentoEst: 'TI', numerodocumentoEst: '1010174218', nombres: 'Luciana', apellidos: 'Quintero González', fechanacimiento: new ISODate('2012-10-17'), activo: true, idcurso: 15, idacudiente: 23 },
+  { _id: 24, tipodocumentoEst: 'TI', numerodocumentoEst: '1010182137', nombres: 'Paula', apellidos: 'Rodríguez Rentería', fechanacimiento: new ISODate('2012-10-28'), activo: true, idcurso: 15, idacudiente: 24 },
+  { _id: 25, tipodocumentoEst: 'TI', numerodocumentoEst: '1010190056', nombres: 'Matías', apellidos: 'Suárez Rodríguez', fechanacimiento: new ISODate('2012-05-18'), activo: true, idcurso: 15, idacudiente: 25 },
+  { _id: 26, tipodocumentoEst: 'TI', numerodocumentoEst: '1010197975', nombres: 'Santiago', apellidos: 'Rojas López', fechanacimiento: new ISODate('2010-10-09'), activo: true, idcurso: 19, idacudiente: 26 },
+  { _id: 27, tipodocumentoEst: 'TI', numerodocumentoEst: '1010205894', nombres: 'Daniel', apellidos: 'Pérez Perea', fechanacimiento: new ISODate('2010-08-30'), activo: true, idcurso: 19, idacudiente: 27 },
+  { _id: 28, tipodocumentoEst: 'TI', numerodocumentoEst: '1010213813', nombres: 'Emiliano', apellidos: 'Gómez Díaz', fechanacimiento: new ISODate('2010-06-27'), activo: true, idcurso: 19, idacudiente: 28 },
+  { _id: 29, tipodocumentoEst: 'TI', numerodocumentoEst: '1010221732', nombres: 'Camila', apellidos: 'Díaz Ramírez', fechanacimiento: new ISODate('2010-09-08'), activo: true, idcurso: 19, idacudiente: 29 },
+  { _id: 30, tipodocumentoEst: 'TI', numerodocumentoEst: '1010229651', nombres: 'David', apellidos: 'Rentería Gómez', fechanacimiento: new ISODate('2010-11-26'), activo: true, idcurso: 19, idacudiente: 30 },
+  { _id: 31, tipodocumentoEst: 'TI', numerodocumentoEst: '1010237570', nombres: 'Valentina', apellidos: 'Pérez Castro', fechanacimiento: new ISODate('2018-07-07'), activo: true, idcurso: 28, idacudiente: 31 },
+  { _id: 32, tipodocumentoEst: 'TI', numerodocumentoEst: '1010245489', nombres: 'Natalia', apellidos: 'Valencia Hernández', fechanacimiento: new ISODate('2018-07-08'), activo: true, idcurso: 28, idacudiente: 32 },
+  { _id: 33, tipodocumentoEst: 'TI', numerodocumentoEst: '1010253408', nombres: 'Laura', apellidos: 'Moreno Pérez', fechanacimiento: new ISODate('2018-04-22'), activo: true, idcurso: 28, idacudiente: 33 },
+  { _id: 34, tipodocumentoEst: 'TI', numerodocumentoEst: '1010261327', nombres: 'Camilo', apellidos: 'Rentería Asprilla', fechanacimiento: new ISODate('2018-02-03'), activo: true, idcurso: 28, idacudiente: 34 },
+  { _id: 35, tipodocumentoEst: 'TI', numerodocumentoEst: '1010269246', nombres: 'Mateo', apellidos: 'Ramírez Rentería', fechanacimiento: new ISODate('2018-09-30'), activo: true, idcurso: 28, idacudiente: 35 },
+  { _id: 36, tipodocumentoEst: 'TI', numerodocumentoEst: '1010277165', nombres: 'Tomás', apellidos: 'Murillo Castro', fechanacimiento: new ISODate('2013-11-12'), activo: true, idcurso: 38, idacudiente: 36 },
+  { _id: 37, tipodocumentoEst: 'TI', numerodocumentoEst: '1010285084', nombres: 'Paula', apellidos: 'Rentería Ortiz', fechanacimiento: new ISODate('2013-11-02'), activo: true, idcurso: 38, idacudiente: 37 },
+  { _id: 38, tipodocumentoEst: 'TI', numerodocumentoEst: '1010293003', nombres: 'Antonella', apellidos: 'Moreno Rentería', fechanacimiento: new ISODate('2013-06-23'), activo: true, idcurso: 38, idacudiente: 38 },
+  { _id: 39, tipodocumentoEst: 'TI', numerodocumentoEst: '1010300922', nombres: 'Sofía', apellidos: 'García Suárez', fechanacimiento: new ISODate('2013-03-31'), activo: true, idcurso: 38, idacudiente: 39 },
+  { _id: 40, tipodocumentoEst: 'TI', numerodocumentoEst: '1010308841', nombres: 'Mateo', apellidos: 'López Ortiz', fechanacimiento: new ISODate('2013-07-16'), activo: true, idcurso: 38, idacudiente: 40 },
+  { _id: 41, tipodocumentoEst: 'TI', numerodocumentoEst: '1010316760', nombres: 'Diego', apellidos: 'Jiménez Hernández', fechanacimiento: new ISODate('2011-01-15'), activo: true, idcurso: 42, idacudiente: 41 },
+  { _id: 42, tipodocumentoEst: 'TI', numerodocumentoEst: '1010324679', nombres: 'Daniela', apellidos: 'Valencia Rojas', fechanacimiento: new ISODate('2011-09-18'), activo: false, idcurso: 42, idacudiente: 42 },
+  { _id: 43, tipodocumentoEst: 'TI', numerodocumentoEst: '1010332598', nombres: 'Sebastián', apellidos: 'Suárez Ortiz', fechanacimiento: new ISODate('2011-04-19'), activo: true, idcurso: 42, idacudiente: 43 },
+  { _id: 44, tipodocumentoEst: 'TI', numerodocumentoEst: '1010340517', nombres: 'David', apellidos: 'Quintero Murillo', fechanacimiento: new ISODate('2011-09-08'), activo: true, idcurso: 42, idacudiente: 44 },
+  { _id: 45, tipodocumentoEst: 'TI', numerodocumentoEst: '1010348436', nombres: 'Antonella', apellidos: 'Rentería Moreno', fechanacimiento: new ISODate('2011-11-30'), activo: true, idcurso: 42, idacudiente: 45 },
+  { _id: 46, tipodocumentoEst: 'TI', numerodocumentoEst: '1010356355', nombres: 'Martina', apellidos: 'García Valencia', fechanacimiento: new ISODate('2009-10-04'), activo: true, idcurso: 46, idacudiente: 46 },
+  { _id: 47, tipodocumentoEst: 'TI', numerodocumentoEst: '1010364274', nombres: 'Martina', apellidos: 'Moreno Suárez', fechanacimiento: new ISODate('2009-12-27'), activo: true, idcurso: 46, idacudiente: 47 },
+  { _id: 48, tipodocumentoEst: 'TI', numerodocumentoEst: '1010372193', nombres: 'Sebastián', apellidos: 'Quintero García', fechanacimiento: new ISODate('2009-12-03'), activo: true, idcurso: 46, idacudiente: 48 },
+  { _id: 49, tipodocumentoEst: 'TI', numerodocumentoEst: '1010380112', nombres: 'Santiago', apellidos: 'Ortiz Ramírez', fechanacimiento: new ISODate('2009-06-03'), activo: true, idcurso: 46, idacudiente: 1 },
+  { _id: 50, tipodocumentoEst: 'TI', numerodocumentoEst: '1010388031', nombres: 'Nicolás', apellidos: 'Vargas García', fechanacimiento: new ISODate('2009-05-17'), activo: true, idcurso: 46, idacudiente: 2 }
+])
 
-// ==========================================
-// 7. USUARIO
-// ==========================================
 db.usuario.insertMany([
   { _id: 1, numerodocumentoUsu: '79000000', nombres: 'Luis', apellidos: 'Moreno García', correo: 'luis.moreno1@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'COORDINADOR', activo: true },
   { _id: 2, numerodocumentoUsu: '79010007', nombres: 'Gabriela', apellidos: 'Córdoba Gómez', correo: 'gabriela.cordoba2@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'COORDINADOR', activo: true },
-  { _id: 6, numerodocumentoUsu: '79050035', nombres: 'Ana María', apellidos: 'González Vargas', correo: 'ana.gonzalez6@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true }
-  // (Continúa con el resto de usuarios...)
+  { _id: 3, numerodocumentoUsu: '79020014', nombres: 'Jorge', apellidos: 'García Rojas', correo: 'jorge.garcia3@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'COORDINADOR', activo: true },
+  { _id: 4, numerodocumentoUsu: '79030021', nombres: 'Esteban', apellidos: 'Perea Suárez', correo: 'esteban.perea4@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'COORDINADOR', activo: true },
+  { _id: 5, numerodocumentoUsu: '79040028', nombres: 'Tomás', apellidos: 'Sánchez Ortiz', correo: 'tomas.sanchez5@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'COORDINADOR', activo: true },
+  { _id: 6, numerodocumentoUsu: '79050035', nombres: 'Ana María', apellidos: 'González Vargas', correo: 'ana.gonzalez6@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 7, numerodocumentoUsu: '79060042', nombres: 'Camilo', apellidos: 'García Mena', correo: 'camilo.garcia7@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 8, numerodocumentoUsu: '79070049', nombres: 'Luz Marina', apellidos: 'Ortiz Gómez', correo: 'luz.ortiz8@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 9, numerodocumentoUsu: '79080056', nombres: 'Mariana', apellidos: 'Martínez Moreno', correo: 'mariana.martinez9@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 10, numerodocumentoUsu: '79090063', nombres: 'Luis', apellidos: 'Córdoba Cuesta', correo: 'luis.cordoba10@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 11, numerodocumentoUsu: '79100070', nombres: 'Emiliano', apellidos: 'Murillo Rodríguez', correo: 'emiliano.murillo11@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 12, numerodocumentoUsu: '79110077', nombres: 'Daniela', apellidos: 'Asprilla Cuesta', correo: 'daniela.asprilla12@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 13, numerodocumentoUsu: '79120084', nombres: 'Sandra', apellidos: 'Rojas Hernández', correo: 'sandra.rojas13@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 14, numerodocumentoUsu: '79130091', nombres: 'Nicolás', apellidos: 'Sánchez Sánchez', correo: 'nicolas.sanchez14@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 15, numerodocumentoUsu: '79140098', nombres: 'Esteban', apellidos: 'Hernández Moreno', correo: 'esteban.hernandez15@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 16, numerodocumentoUsu: '79150105', nombres: 'Juliana', apellidos: 'Valencia Rojas', correo: 'juliana.valencia16@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 17, numerodocumentoUsu: '79160112', nombres: 'María José', apellidos: 'Córdoba Hernández', correo: 'maria.cordoba17@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 18, numerodocumentoUsu: '79170119', nombres: 'Carlos', apellidos: 'Valencia Vargas', correo: 'carlos.valencia18@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 19, numerodocumentoUsu: '79180126', nombres: 'Jerónimo', apellidos: 'Mosquera Castro', correo: 'jeronimo.mosquera19@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 20, numerodocumentoUsu: '79190133', nombres: 'Daniela', apellidos: 'Valencia Hernández', correo: 'daniela.valencia20@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 21, numerodocumentoUsu: '79200140', nombres: 'Sofía', apellidos: 'Moreno Córdoba', correo: 'sofia.moreno21@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 22, numerodocumentoUsu: '79210147', nombres: 'Luis', apellidos: 'López Martínez', correo: 'luis.lopez22@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 23, numerodocumentoUsu: '79220154', nombres: 'Diana', apellidos: 'Rojas Hernández', correo: 'diana.rojas23@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 24, numerodocumentoUsu: '79230161', nombres: 'Camilo', apellidos: 'Rodríguez Suárez', correo: 'camilo.rodriguez24@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 25, numerodocumentoUsu: '79240168', nombres: 'Carlos', apellidos: 'Mena Perea', correo: 'carlos.mena25@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 26, numerodocumentoUsu: '79250175', nombres: 'David', apellidos: 'Pérez Valencia', correo: 'david.perez26@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 27, numerodocumentoUsu: '79260182', nombres: 'Valentina', apellidos: 'Castro Ortiz', correo: 'valentina.castro27@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 28, numerodocumentoUsu: '79270189', nombres: 'Sara', apellidos: 'Cuesta Moreno', correo: 'sara.cuesta28@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 29, numerodocumentoUsu: '79280196', nombres: 'Salomé', apellidos: 'Martínez Quintero', correo: 'salome.martinez29@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 30, numerodocumentoUsu: '79290203', nombres: 'Valeria', apellidos: 'Moreno Vargas', correo: 'valeria.moreno30@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 31, numerodocumentoUsu: '79300210', nombres: 'Diana', apellidos: 'Jiménez Gómez', correo: 'diana.jimenez31@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 32, numerodocumentoUsu: '79310217', nombres: 'Jorge', apellidos: 'Suárez Díaz', correo: 'jorge.suarez32@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 33, numerodocumentoUsu: '79320224', nombres: 'Jorge', apellidos: 'González Vargas', correo: 'jorge.gonzalez33@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 34, numerodocumentoUsu: '79330231', nombres: 'Ana María', apellidos: 'Cuesta Quintero', correo: 'ana.cuesta34@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 35, numerodocumentoUsu: '79340238', nombres: 'Paula', apellidos: 'Martínez Cuesta', correo: 'paula.martinez35@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 36, numerodocumentoUsu: '79350245', nombres: 'Mariana', apellidos: 'González Jiménez', correo: 'mariana.gonzalez36@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 37, numerodocumentoUsu: '79360252', nombres: 'Paula', apellidos: 'Perea Vargas', correo: 'paula.perea37@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 38, numerodocumentoUsu: '79370259', nombres: 'Andrés', apellidos: 'Quintero Palacios', correo: 'andres.quintero38@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 39, numerodocumentoUsu: '79380266', nombres: 'Julián', apellidos: 'Mosquera Castro', correo: 'julian.mosquera39@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 40, numerodocumentoUsu: '79390273', nombres: 'Salomé', apellidos: 'Mena Díaz', correo: 'salome.mena40@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 41, numerodocumentoUsu: '79400280', nombres: 'Isabella', apellidos: 'Torres González', correo: 'isabella.torres41@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 42, numerodocumentoUsu: '79410287', nombres: 'Sara', apellidos: 'Rodríguez Gómez', correo: 'sara.rodriguez42@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 43, numerodocumentoUsu: '79420294', nombres: 'Samuel', apellidos: 'Murillo Mosquera', correo: 'samuel.murillo43@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 44, numerodocumentoUsu: '79430301', nombres: 'Yolanda', apellidos: 'Asprilla Mena', correo: 'yolanda.asprilla44@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 45, numerodocumentoUsu: '79440308', nombres: 'Salomé', apellidos: 'Pérez Castro', correo: 'salome.perez45@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 46, numerodocumentoUsu: '79450315', nombres: 'Luz Marina', apellidos: 'Mena Vargas', correo: 'luz.mena46@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 47, numerodocumentoUsu: '79460322', nombres: 'Andrés', apellidos: 'Sánchez Ortiz', correo: 'andres.sanchez47@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 48, numerodocumentoUsu: '79470329', nombres: 'Emiliano', apellidos: 'Rojas Gómez', correo: 'emiliano.rojas48@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true },
+  { _id: 49, numerodocumentoUsu: '79480336', nombres: 'Martina', apellidos: 'López Vargas', correo: 'martina.lopez49@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: false },
+  { _id: 50, numerodocumentoUsu: '79490343', nombres: 'Isabella', apellidos: 'Jiménez Castro', correo: 'isabella.jimenez50@colegiomzo.edu.co', contrasena: 'hash_sha256', rol: 'MAESTRO', activo: true }
 ]);
 
-// ==========================================
-// 8. CITACION
-// ==========================================
 db.citacion.insertMany([
   { _id: 1, fechacitacion: new ISODate('2026-08-07'), motivo: 'Acumula 3 novedades sin justificar (evasion, falto)', estado: 'REALIZADA', fecharegistro: new ISODate('2026-08-04T17:00:00Z'), idestudiante: 8 },
-  { _id: 2, fechacitacion: new ISODate('2026-08-09'), motivo: 'Acumula 3 novedades sin justificar (evasion, retardo)', estado: 'PENDIENTE', fecharegistro: new ISODate('2026-08-06T17:00:00Z'), idestudiante: 14 }
-  // (Continúa con el resto de citaciones...)
+  { _id: 2, fechacitacion: new ISODate('2026-08-09'), motivo: 'Acumula 3 novedades sin justificar (evasion, retardo)', estado: 'PENDIENTE', fecharegistro: new ISODate('2026-08-06T17:00:00Z'), idestudiante: 14 },
+  { _id: 3, fechacitacion: new ISODate('2026-08-08'), motivo: 'Acumula 3 novedades sin justificar (evasion, falto)', estado: 'PENDIENTE', fecharegistro: new ISODate('2026-08-05T17:00:00Z'), idestudiante: 33 },
+  { _id: 4, fechacitacion: new ISODate('2026-08-09'), motivo: 'Acumula 3 novedades sin justificar (evasion, falto, retardo)', estado: 'PENDIENTE', fecharegistro: new ISODate('2026-08-06T17:00:00Z'), idestudiante: 47 },
+  { _id: 5, fechacitacion: new ISODate('2026-08-09'), motivo: 'Acumula 3 novedades sin justificar (evasion, falto)', estado: 'PENDIENTE', fecharegistro: new ISODate('2026-08-06T17:00:00Z'), idestudiante: 50 },
+  { _id: 6, fechacitacion: new ISODate('2026-08-08'), motivo: 'Seguimiento por retardo reportada por docente', estado: 'PENDIENTE', fecharegistro: new ISODate('2026-08-06T17:30:00Z'), idestudiante: 4 },
+  { _id: 7, fechacitacion: new ISODate('2026-08-06'), motivo: 'Seguimiento por falto reportada por docente', estado: 'REALIZADA', fecharegistro: new ISODate('2026-08-04T17:30:00Z'), idestudiante: 46 },
+  { _id: 8, fechacitacion: new ISODate('2026-08-09'), motivo: 'Seguimiento por falto reportada por docente', estado: 'PENDIENTE', fecharegistro: new ISODate('2026-08-07T17:30:00Z'), idestudiante: 17 },
+  { _id: 9, fechacitacion: new ISODate('2026-08-07'), motivo: 'Seguimiento por falto reportada por docente', estado: 'PENDIENTE', fecharegistro: new ISODate('2026-08-05T17:30:00Z'), idestudiante: 40 },
+  { _id: 10, fechacitacion: new ISODate('2026-08-06'), motivo: 'Seguimiento por falto reportada por docente', estado: 'REALIZADA', fecharegistro: new ISODate('2026-08-04T17:30:00Z'), idestudiante: 34 }
 ]);
 
-// ==========================================
-// 9. ASISTENCIA
-// ==========================================
 db.asistencia.insertMany([
   { _id: 1, fecha: new ISODate('2026-08-03'), categoria: 'ASISTIO', justificada: false, justificacion: 'NINGUNA', fecha_hora_registro: new ISODate('2026-08-03T06:47:00Z'), idestudiante: 1, idcurso: 1, idbloque: 1, idusuario: 39, idcitacion: null },
-  { _id: 2, fecha: new ISODate('2026-08-03'), categoria: 'ASISTIO', justificada: false, justificacion: 'NINGUNA', fecha_hora_registro: new ISODate('2026-08-03T07:38:00Z'), idestudiante: 1, idcurso: 1, idbloque: 2, idusuario: 30, idcitacion: null }
-  // (Continúa con el resto de registros de asistencia...)
-]);
+  { _id: 2, fecha: new ISODate('2026-08-03'), categoria: 'ASISTIO', justificada: false, justificacion: 'NINGUNA', fecha_hora_registro: new ISODate('2026-08-03T07:38:00Z'), idestudiante: 1, idcurso: 1, idbloque: 2, idusuario: 30, idcitacion: null },
+  { _id: 3, fecha: new ISODate('2026-08-04'), categoria: 'FALTO', justificada: false, justificacion: 'NINGUNA', fecha_hora_registro: new ISODate('2026-08-04T06:42:00Z'), idestudiante: 1, idcurso: 1, idbloque: 1, idusuario: 24, idcitacion: 13 },
+  { _id: 4, fecha: new ISODate('2026-08-04'), categoria: 'ASISTIO', justificada: false, justificacion: 'NINGUNA', fecha_hora_registro: new ISODate('2026-08-04T07:43:00Z'), idestudiante: 1, idcurso: 1, idbloque: 2, idusuario: 26, idcitacion: null },
+  { _id: 5, fecha: new ISODate('2026-08-05'), categoria: 'ASISTIO', justificada: false, justificacion: 'NINGUNA', fecha_hora_registro: new ISODate('2026-08-05T06:46:00Z'), idestudiante: 1, idcurso: 1, idbloque: 1, idusuario: 43, idcitacion: null }
+])
+
+db.jornada.createIndex({ nombre: 1 }, { unique: true })
+nombre_1
+db.curso.createIndex({ nombre: 1, idjornada: 1, aniolectivo: 1 }, { unique: true })
+nombre_1_idjornada_1_aniolectivo_1
+// usuario por correo y documento
+db.usuario.createIndex({rol: 1})
+rol_1
+db.citacion.createIndex({idestudiante:1, fechacitacion: -1})
+idestudiante_1_fechacitacion_-1
+db.bloque.createIndex({ idnivel: 1, idjornada: 1, numero: 1 }, { unique: true })
+idnivel_1_idjornada_1_numero_1
+db.auditoria_asistencia.createIndex({ idusuario: 1, fechahora: -1 })
+idusuario_1_fechahora_-1
+
+
 
 
 
