@@ -1,0 +1,171 @@
+[{
+  "_id": "C01",
+  "nombre": "Laura Gómez",
+  "email": "laura.gomez@example.com",
+  "ciudad": "Bogotá",
+  "fecha_registro": {
+    "$date": "2026-08-14T00:00:00.000Z"
+  },
+  "puntos": 120,
+  "direcciones": [
+    {
+      "alias": "Casa",
+      "direccion": "Calle 72 # 10-34",
+      "barrio": "Chapinero"
+    }
+  ],
+  "preferencias": [
+    "japonesa",
+    "colombiana"
+  ]
+},
+{
+  "_id": "C02",
+  "nombre": "Andrés Rojas",
+  "email": "andres.rojas@example.com",
+  "ciudad": "Bogotá",
+  "fecha_registro": {
+    "$date": "2025-11-02T00:00:00.000Z"
+  },
+  "puntos": 340,
+  "direcciones": [
+    {
+      "alias": "Casa",
+      "direccion": "Carrera 15 # 93-20",
+      "barrio": "Chicó"
+    },
+    {
+      "alias": "Oficina",
+      "direccion": "Calle 26 # 69-76",
+      "barrio": "Salitre"
+    }
+  ],
+  "preferencias": [
+    "colombiana",
+    "italiana"
+  ]
+},
+{
+  "_id": "C03",
+  "nombre": "Valentina Ríos",
+  "email": "valentina.rios@example.com",
+  "ciudad": "Bogotá",
+  "fecha_registro": {
+    "$date": "2026-03-21T00:00:00.000Z"
+  },
+  "puntos": 50,
+  "direcciones": [
+    {
+      "alias": "Apartamento",
+      "direccion": "Calle 140 # 11-45",
+      "barrio": "Cedritos"
+    }
+  ],
+  "preferencias": [
+    "hamburguesas"
+  ]
+},
+{
+  "_id": "C04",
+  "nombre": "Camilo Torres",
+  "email": "camilo.torres@example.com",
+  "ciudad": "Medellín",
+  "fecha_registro": {
+    "$date": "2025-06-10T00:00:00.000Z"
+  },
+  "puntos": 410,
+  "direcciones": [
+    {
+      "alias": "Casa",
+      "direccion": "Carrera 70 # 44-12",
+      "barrio": "Laureles"
+    }
+  ],
+  "preferencias": [
+    "colombiana",
+    "mexicana"
+  ]
+},
+{
+  "_id": "C05",
+  "nombre": "Mariana López",
+  "email": "mariana.lopez@example.com",
+  "ciudad": "Medellín",
+  "fecha_registro": {
+    "$date": "2026-09-30T00:00:00.000Z"
+  },
+  "puntos": 0,
+  "direcciones": [
+    {
+      "alias": "Casa",
+      "direccion": "Calle 10 # 43-15",
+      "barrio": "El Poblado"
+    }
+  ],
+  "preferencias": [
+    "vegetariana"
+  ]
+},
+{
+  "_id": "C06",
+  "nombre": "Santiago Pérez",
+  "email": "santiago.perez@example.com",
+  "ciudad": "Barranquilla",
+  "fecha_registro": {
+    "$date": "2026-01-15T00:00:00.000Z"
+  },
+  "puntos": 200,
+  "direcciones": [
+    {
+      "alias": "Casa",
+      "direccion": "Carrera 54 # 72-80",
+      "barrio": "El Prado"
+    }
+  ],
+  "preferencias": [
+    "asados",
+    "mariscos"
+  ]
+},
+{
+  "_id": "C07",
+  "nombre": "Daniela Martínez",
+  "email": "daniela.martinez@example.com",
+  "ciudad": "Barranquilla",
+  "fecha_registro": {
+    "$date": "2026-07-07T00:00:00.000Z"
+  },
+  "puntos": 80,
+  "direcciones": [
+    {
+      "alias": "Apartamento",
+      "direccion": "Calle 98 # 52-115",
+      "barrio": "Riomar"
+    }
+  ],
+  "preferencias": [
+    "mariscos"
+  ]
+},
+{
+  "_id": "C08",
+  "nombre": "Julián Castro",
+  "email": "julian.castro@example.com",
+  "ciudad": "Bogotá",
+  "fecha_registro": {
+    "$date": "2024-12-01T00:00:00.000Z"
+  },
+  "puntos": 600,
+  "direcciones": [
+    {
+      "alias": "Casa",
+      "direccion": "Calle 85 # 12-30",
+      "barrio": "Chicó"
+    }
+  ],
+  "preferencias": [
+    "japonesa",
+    "italiana",
+    "hamburguesas"
+  ]
+}]

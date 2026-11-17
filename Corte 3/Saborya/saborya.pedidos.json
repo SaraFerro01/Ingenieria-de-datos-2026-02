@@ -1,0 +1,592 @@
+[{
+  "_id": "PD001",
+  "cliente": {
+    "id": "C01",
+    "nombre": "Laura Gómez"
+  },
+  "restaurante": {
+    "id": "R02",
+    "nombre": "Sushi Nikko",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-02T00:30:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P04",
+      "nombre": "Combo Sake",
+      "precio": 41000,
+      "cantidad": 1
+    },
+    {
+      "producto_id": "P06",
+      "nombre": "Té verde",
+      "precio": 7000,
+      "cantidad": 2
+    }
+  ],
+  "total": 55000
+},
+{
+  "_id": "PD002",
+  "cliente": {
+    "id": "C02",
+    "nombre": "Andrés Rojas"
+  },
+  "restaurante": {
+    "id": "R01",
+    "nombre": "Arepas La 19",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-01T13:15:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "efectivo",
+  "items": [
+    {
+      "producto_id": "P01",
+      "nombre": "Arepa de choclo con queso",
+      "precio": 9500,
+      "cantidad": 2
+    },
+    {
+      "producto_id": "P03",
+      "nombre": "Jugo de lulo",
+      "precio": 6000,
+      "cantidad": 1
+    }
+  ],
+  "total": 25000
+},
+{
+  "_id": "PD003",
+  "cliente": {
+    "id": "C08",
+    "nombre": "Julián Castro"
+  },
+  "restaurante": {
+    "id": "R03",
+    "nombre": "Pizzería Napoli",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-03T01:10:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P07",
+      "nombre": "Pizza hawaiana mediana",
+      "precio": 32000,
+      "cantidad": 1
+    },
+    {
+      "producto_id": "P08",
+      "nombre": "Pizza margarita grande",
+      "precio": 38000,
+      "cantidad": 1
+    }
+  ],
+  "total": 70000
+},
+{
+  "_id": "PD004",
+  "cliente": {
+    "id": "C03",
+    "nombre": "Valentina Ríos"
+  },
+  "restaurante": {
+    "id": "R04",
+    "nombre": "Burger Norte",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-03T18:05:00.000Z"
+  },
+  "estado": "cancelado",
+  "metodo_pago": "nequi",
+  "items": [
+    {
+      "producto_id": "P10",
+      "nombre": "Hamburguesa clásica",
+      "precio": 22000,
+      "cantidad": 2
+    },
+    {
+      "producto_id": "P11",
+      "nombre": "Papas a la francesa",
+      "precio": 8000,
+      "cantidad": 2
+    }
+  ],
+  "total": 60000
+},
+{
+  "_id": "PD005",
+  "cliente": {
+    "id": "C04",
+    "nombre": "Camilo Torres"
+  },
+  "restaurante": {
+    "id": "R07",
+    "nombre": "Bandeja Paisa Doña Rosa",
+    "ciudad": "Medellín"
+  },
+  "fecha": {
+    "$date": "2026-10-03T17:40:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "efectivo",
+  "items": [
+    {
+      "producto_id": "P16",
+      "nombre": "Bandeja paisa",
+      "precio": 34000,
+      "cantidad": 2
+    },
+    {
+      "producto_id": "P17",
+      "nombre": "Arepa con hogao",
+      "precio": 8000,
+      "cantidad": 1
+    }
+  ],
+  "total": 76000
+},
+{
+  "_id": "PD006",
+  "cliente": {
+    "id": "C05",
+    "nombre": "Mariana López"
+  },
+  "restaurante": {
+    "id": "R06",
+    "nombre": "Verde Vivo",
+    "ciudad": "Medellín"
+  },
+  "fecha": {
+    "$date": "2026-10-05T00:00:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P14",
+      "nombre": "Bowl de quinua",
+      "precio": 26000,
+      "cantidad": 1
+    },
+    {
+      "producto_id": "P15",
+      "nombre": "Hamburguesa de lentejas",
+      "precio": 24000,
+      "cantidad": 1
+    }
+  ],
+  "total": 50000
+},
+{
+  "_id": "PD007",
+  "cliente": {
+    "id": "C06",
+    "nombre": "Santiago Pérez"
+  },
+  "restaurante": {
+    "id": "R09",
+    "nombre": "Brasa Caribe",
+    "ciudad": "Barranquilla"
+  },
+  "fecha": {
+    "$date": "2026-10-06T02:15:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P20",
+      "nombre": "Picada para dos",
+      "precio": 58000,
+      "cantidad": 1
+    }
+  ],
+  "total": 58000
+},
+{
+  "_id": "PD008",
+  "cliente": {
+    "id": "C07",
+    "nombre": "Daniela Martínez"
+  },
+  "restaurante": {
+    "id": "R10",
+    "nombre": "Mar y Coco",
+    "ciudad": "Barranquilla"
+  },
+  "fecha": {
+    "$date": "2026-10-05T18:30:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "nequi",
+  "items": [
+    {
+      "producto_id": "P22",
+      "nombre": "Cazuela de mariscos",
+      "precio": 52000,
+      "cantidad": 1
+    },
+    {
+      "producto_id": "P24",
+      "nombre": "Limonada de coco",
+      "precio": 9000,
+      "cantidad": 2
+    }
+  ],
+  "total": 70000
+},
+{
+  "_id": "PD009",
+  "cliente": {
+    "id": "C01",
+    "nombre": "Laura Gómez"
+  },
+  "restaurante": {
+    "id": "R05",
+    "nombre": "Ajiaco & Co",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-06T17:20:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P12",
+      "nombre": "Ajiaco santafereño",
+      "precio": 28000,
+      "cantidad": 1
+    },
+    {
+      "producto_id": "P13",
+      "nombre": "Chocolate con queso",
+      "precio": 9000,
+      "cantidad": 1
+    }
+  ],
+  "total": 37000
+},
+{
+  "_id": "PD010",
+  "cliente": {
+    "id": "C08",
+    "nombre": "Julián Castro"
+  },
+  "restaurante": {
+    "id": "R02",
+    "nombre": "Sushi Nikko",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-08T01:45:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P05",
+      "nombre": "Ramen tonkotsu",
+      "precio": 36000,
+      "cantidad": 2
+    }
+  ],
+  "total": 72000
+},
+{
+  "_id": "PD011",
+  "cliente": {
+    "id": "C02",
+    "nombre": "Andrés Rojas"
+  },
+  "restaurante": {
+    "id": "R03",
+    "nombre": "Pizzería Napoli",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-09T00:50:00.000Z"
+  },
+  "estado": "cancelado",
+  "metodo_pago": "efectivo",
+  "items": [
+    {
+      "producto_id": "P07",
+      "nombre": "Pizza hawaiana mediana",
+      "precio": 32000,
+      "cantidad": 2
+    }
+  ],
+  "total": 64000
+},
+{
+  "_id": "PD012",
+  "cliente": {
+    "id": "C04",
+    "nombre": "Camilo Torres"
+  },
+  "restaurante": {
+    "id": "R08",
+    "nombre": "Taco Loco",
+    "ciudad": "Medellín"
+  },
+  "fecha": {
+    "$date": "2026-10-10T01:00:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "nequi",
+  "items": [
+    {
+      "producto_id": "P18",
+      "nombre": "Tacos al pastor x3",
+      "precio": 21000,
+      "cantidad": 2
+    },
+    {
+      "producto_id": "P19",
+      "nombre": "Burrito de pollo",
+      "precio": 25000,
+      "cantidad": 1
+    }
+  ],
+  "total": 67000
+},
+{
+  "_id": "PD013",
+  "cliente": {
+    "id": "C06",
+    "nombre": "Santiago Pérez"
+  },
+  "restaurante": {
+    "id": "R10",
+    "nombre": "Mar y Coco",
+    "ciudad": "Barranquilla"
+  },
+  "fecha": {
+    "$date": "2026-10-10T18:10:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "efectivo",
+  "items": [
+    {
+      "producto_id": "P23",
+      "nombre": "Arroz con coco y pescado",
+      "precio": 39000,
+      "cantidad": 2
+    }
+  ],
+  "total": 78000
+},
+{
+  "_id": "PD014",
+  "cliente": {
+    "id": "C03",
+    "nombre": "Valentina Ríos"
+  },
+  "restaurante": {
+    "id": "R01",
+    "nombre": "Arepas La 19",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-11T14:00:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "nequi",
+  "items": [
+    {
+      "producto_id": "P02",
+      "nombre": "Arepa rellena de carne",
+      "precio": 14000,
+      "cantidad": 1
+    },
+    {
+      "producto_id": "P03",
+      "nombre": "Jugo de lulo",
+      "precio": 6000,
+      "cantidad": 2
+    }
+  ],
+  "total": 26000
+},
+{
+  "_id": "PD015",
+  "cliente": {
+    "id": "C08",
+    "nombre": "Julián Castro"
+  },
+  "restaurante": {
+    "id": "R04",
+    "nombre": "Burger Norte",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-12T23:30:00.000Z"
+  },
+  "estado": "en_camino",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P10",
+      "nombre": "Hamburguesa clásica",
+      "precio": 22000,
+      "cantidad": 1
+    },
+    {
+      "producto_id": "P11",
+      "nombre": "Papas a la francesa",
+      "precio": 8000,
+      "cantidad": 1
+    }
+  ],
+  "total": 30000
+},
+{
+  "_id": "PD016",
+  "cliente": {
+    "id": "C05",
+    "nombre": "Mariana López"
+  },
+  "restaurante": {
+    "id": "R07",
+    "nombre": "Bandeja Paisa Doña Rosa",
+    "ciudad": "Medellín"
+  },
+  "fecha": {
+    "$date": "2026-10-12T18:00:00.000Z"
+  },
+  "estado": "pendiente",
+  "metodo_pago": "efectivo",
+  "items": [
+    {
+      "producto_id": "P16",
+      "nombre": "Bandeja paisa",
+      "precio": 34000,
+      "cantidad": 1
+    }
+  ],
+  "total": 34000
+},
+{
+  "_id": "PD017",
+  "cliente": {
+    "id": "C01",
+    "nombre": "Laura Gómez"
+  },
+  "restaurante": {
+    "id": "R02",
+    "nombre": "Sushi Nikko",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-14T01:20:00.000Z"
+  },
+  "estado": "en_camino",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P04",
+      "nombre": "Combo Sake",
+      "precio": 41000,
+      "cantidad": 2
+    }
+  ],
+  "total": 82000
+},
+{
+  "_id": "PD018",
+  "cliente": {
+    "id": "C07",
+    "nombre": "Daniela Martínez"
+  },
+  "restaurante": {
+    "id": "R09",
+    "nombre": "Brasa Caribe",
+    "ciudad": "Barranquilla"
+  },
+  "fecha": {
+    "$date": "2026-10-14T02:00:00.000Z"
+  },
+  "estado": "pendiente",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P21",
+      "nombre": "Costillas BBQ",
+      "precio": 45000,
+      "cantidad": 1
+    },
+    {
+      "producto_id": "P20",
+      "nombre": "Picada para dos",
+      "precio": 58000,
+      "cantidad": 1
+    }
+  ],
+  "total": 103000
+},
+{
+  "_id": "PD019",
+  "cliente": {
+    "id": "C02",
+    "nombre": "Andrés Rojas"
+  },
+  "restaurante": {
+    "id": "R05",
+    "nombre": "Ajiaco & Co",
+    "ciudad": "Bogotá"
+  },
+  "fecha": {
+    "$date": "2026-10-14T17:45:00.000Z"
+  },
+  "estado": "entregado",
+  "metodo_pago": "tarjeta",
+  "items": [
+    {
+      "producto_id": "P12",
+      "nombre": "Ajiaco santafereño",
+      "precio": 28000,
+      "cantidad": 2
+    }
+  ],
+  "total": 56000
+},
+{
+  "_id": "PD020",
+  "cliente": {
+    "id": "C04",
+    "nombre": "Camilo Torres"
+  },
+  "restaurante": {
+    "id": "R06",
+    "nombre": "Verde Vivo",
+    "ciudad": "Medellín"
+  },
+  "fecha": {
+    "$date": "2026-10-15T00:10:00.000Z"
+  },
+  "estado": "cancelado",
+  "metodo_pago": "nequi",
+  "items": [
+    {
+      "producto_id": "P15",
+      "nombre": "Hamburguesa de lentejas",
+      "precio": 24000,
+      "cantidad": 2
+    }
+  ],
+  "total": 48000
+}]
